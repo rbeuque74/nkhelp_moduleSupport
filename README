@@ -1,0 +1,14 @@
+Module "Support" pour Nuked-KlaN
+Réalisé par Rbeuque74 pour nkhelp.fr
+
+*Affichage de la liste des tickets pour un utilisateur connecté
+*Vue du fil de discussion d'un ticket
+
+## A FAIRE ##
+*Gérer les visiteurs
+*Gérer le cas "aucuns tickets"
+*Fermeture d'un ticket
+*Gérer "ce ticket n'existe pas"
+
+*Gérer l'admin
+*Gérer les langues
