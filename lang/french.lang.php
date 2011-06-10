@@ -5,6 +5,12 @@ define("_YOUWROTE","Vous avez &eacute;crit le ");
 define("_WROTE"," a &eacute;crit le ");
 define("_CONSULTREPLY","Consulter/R&eacute;pondre");
 define("_CLOSE","Fermer");
+define("_REPLY","R&eacute;pondre");
+define("_TICKETDONTEXIST","Ce ticket n'existe pas");
+define("_ERREUR","Erreur dans le traitement de votre demande");
+define("_LISTTICKETS","Liste des tickets");
+define("_REPLYSUCCESS","R&eacute;ponse envoy&eacute;e avec succ&egrave;s");
+define("_SUJET","Sujet");
 define("_FLOODCMAIL","Vous avez d&eacute;ja post&eacute; un email il y a moins de " . $nuked['contact_flood'] . " minutes,<br />veuillez patienter avant de renvoyer un autre email...");
 
 define("_NOENTRANCE","D&eacute;sol&eacute; mais vous n'avez pas les droits pour acceder &agrave; cette page");

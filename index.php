@@ -74,62 +74,103 @@ if ($lvlUser >= $level_access && $level_access > -1)
 </table>
 
 
-<?php
-        
-	
-	echo "<br /><form method=\"post\" action=\"index.php?file=Contact&amp;op=sendmail\" onsubmit=\"return verifchamps()\">\n"
-	. "<table style=\"margin-left: auto;margin-right: auto;text-align: left;\" cellspacing=\"1\" cellpadding=\"3\" border=\"0\">\n"
-	. "<tr><td align=\"center\"><big><b>" . _CONTACT . "</b></big><br /><br />" . _CONTACTFORM . "</td></tr>\n"
-	. "<tr><td>&nbsp;</td></tr><tr><td><b>" . _YNICK . " : </b>&nbsp;<input id=\"ns_pseudo\" type=\"text\" name=\"nom\" size=\"26\" value=\"" . $user[2]. "\" /></td></tr>\n"
-	. "<tr><td><b>" . _YMAIL . " : </b>&nbsp;<input id=\"ns_email\" type=\"text\" name=\"mail\" value=\"\" size=\"30\" /></td></tr>\n"
-	. "<tr><td><b>" . _YSUBJECT . " : </b>&nbsp;<input id=\"ns_sujet\" type=\"text\" name=\"sujet\" value=\"\" size=\"36\" /></td></tr>\n"
-	. "<tr><td>&nbsp;</td></tr><tr><td><b>" . _YCOMMENT . " : </b><br /><textarea class=\"editorsimpla\" id=\"ns_corps\" name=\"corps\" cols=\"60\" rows=\"12\"></textarea></td></tr>\n"
-	. "<tr><td align=\"center\"><br /><input type=\"submit\" class=\"bouton\" value=\"" . _SEND . "\" /></td></tr></table></form><br />\n";
-    }
+<br /><form method="post" action="index.php?file=Contact&amp;op=sendmail" onsubmit="return verifchamps()">
+	<table style="margin-left: auto;margin-right: auto;text-align: left;" cellspacing="1" cellpadding="3" border="0">
+	<tr><td align="center"><big><b>" . _CONTACT </b></big><br /><br />" . _CONTACTFORM </td></tr>
+	<tr><td>&nbsp;</td></tr><tr><td><b>" . _YNICK  : </b>&nbsp;<input id="ns_pseudo" type="text" name="nom" size="26" value="" . $user[2]" /></td></tr>
+	<tr><td><b>" . _YMAIL  : </b>&nbsp;<input id="ns_email" type="text" name="mail" value="" size="30" /></td></tr>
+	<tr><td><b>" . _YSUBJECT  : </b>&nbsp;<input id="ns_sujet" type="text" name="sujet" value="" size="36" /></td></tr>
+	<tr><td>&nbsp;</td></tr><tr><td><b>" . _YCOMMENT  : </b><br /><textarea class="editorsimpla" id="ns_corps" name="corps" cols="60" rows="12"></textarea></td></tr>
+	<tr><td align="center"><br /><input type="submit" class="bouton" value="" . _SEND " /></td></tr></table></form><br />;
+ <?php   }
     
     function viewThread($thread_ID)
     {
         global $lvlUser, $nuked, $user;
         $thread = recupThread($thread_ID);
-        if($lvlUser == 0 || $thread["auteur_id"] != $user[0])
+        if(empty($thread["id"]))
         {
-            echo _PASPROPRIOTICKET;
+            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
+        }
+        else if($lvlUser == 0 || $thread["auteur_id"] != $user[0])
+        {
+            ?> <div style="text-align:center;"><h2><?php echo _PASPROPRIOTICKET; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
         }
         else
         {
             $messages = recupThreadMessages($thread_ID);
-        }
+        
         ?>
 <div style="text-align:center;">
     <h2><?php echo _SUPPORT; ?></h2>
+    <a href="index.php?file=Support">[ <?php echo _LISTTICKETS; ?> ]</a>
+    <h3><?php echo $thread["titre"]; ?></h3>
 </div>
-<?php    
-            while($m = mysql_fetch_assoc($messages)){ if($m["admin"] == 0){ ?>
+        <?php while($m = mysql_fetch_assoc($messages)){ if($m["admin"] == 0){ ?>
 <div style="border:1px solid black; width:100%;"><?php echo _YOUWROTE . strftime("%x %H:%M", $m["date"]) ?></div>
 <div style="border:1px solid black; width:100%;"><?php echo $m["texte"] ?></div>
-<?php } else { ?>
+            <?php } else { ?>
 <div style="border:1px solid black; width:100%; background-color: yellow;"><?php echo $m["auteur"] . _WROTE . strftime("%x %H:%M", $m["date"]) ?></div>
 <div style="border:1px solid black; width:100%; background-color: yellow;"><?php echo $m["texte"] ?></div>
+            <?php }
+        } ?>
 
-        <?php  
-            }}
-?>
-
-
-
-<?php
-        
-	
-	echo "<br /><form method=\"post\" action=\"index.php?file=Contact&amp;op=sendmail\" onsubmit=\"return verifchamps()\">\n"
-	. "<table style=\"margin-left: auto;margin-right: auto;text-align: left;\" cellspacing=\"1\" cellpadding=\"3\" border=\"0\">\n"
-	. "<tr><td align=\"center\"><big><b>" . _CONTACT . "</b></big><br /><br />" . _CONTACTFORM . "</td></tr>\n"
-	. "<tr><td>&nbsp;</td></tr><tr><td><b>" . _YNICK . " : </b>&nbsp;<input id=\"ns_pseudo\" type=\"text\" name=\"nom\" size=\"26\" value=\"" . $user[2]. "\" /></td></tr>\n"
-	. "<tr><td><b>" . _YMAIL . " : </b>&nbsp;<input id=\"ns_email\" type=\"text\" name=\"mail\" value=\"\" size=\"30\" /></td></tr>\n"
-	. "<tr><td><b>" . _YSUBJECT . " : </b>&nbsp;<input id=\"ns_sujet\" type=\"text\" name=\"sujet\" value=\"\" size=\"36\" /></td></tr>\n"
-	. "<tr><td>&nbsp;</td></tr><tr><td><b>" . _YCOMMENT . " : </b><br /><textarea class=\"editorsimpla\" id=\"ns_corps\" name=\"corps\" cols=\"60\" rows=\"12\"></textarea></td></tr>\n"
-	. "<tr><td align=\"center\"><br /><input type=\"submit\" class=\"bouton\" value=\"" . _SEND . "\" /></td></tr></table></form><br />\n";
+<br />
+<form method="post" action="index.php?file=Support&amp;op=reply">
+    <table style="margin-left: auto;margin-right: auto;text-align: left;" cellspacing="1" cellpadding="3" border="0">
+	<tr><td align="center"><h2><b><?php echo _REPLY; ?></b></h2><input type="text" style="display:none;" name="id" id="id" size="5" value="<?php echo $thread_ID; ?>" /></td></tr>
+	<tr><td><textarea class="editorsimpla" id="ns_corps" name="corps" cols="60" rows="12"></textarea></td></tr>
+	<tr><td align="center"><br /><input type="submit" class="bouton" value="<?php echo _SEND; ?>"/></td></tr>
+    </table>
+</form>
+<br />
+        <?php     
+    }
     }
 
+    
+    function reply($thread_ID, $corps)
+    {
+        global $lvlUser, $nuked, $user;
+        if(is_nan($thread_ID))
+        {
+            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
+        }
+        $thread = recupThread($thread_ID);
+        if(empty($thread["id"]))
+        {
+            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
+        }
+        else if($lvlUser == 0 || $thread["auteur_id"] != $user[0])
+        {
+            ?> <div style="text-align:center;"><h2><?php echo _PASPROPRIOTICKET; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
+        }
+        else { 
+            $sql = mysql_query("INSERT INTO ". $nuked["prefix"] ."_support_messages (texte, date, auteur, auteur_id, auteur_ip, thread_id, admin) VALUES 
+                ('". secu_html(html_entity_decode($corps, ENT_QUOTES)) ."', '". time() ."', '". mysql_real_escape_string($user[2]) ."', 
+                    '". mysql_real_escape_string($user[0]) ."', '". mysql_real_escape_string($user[3]) ."', '". mysql_real_escape_string($thread_ID) ."', '0') ");
+            if(!$sql){
+            ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
+            }
+            else {
+        ?>
+<div style="text-align:center;">
+    <h2><?php echo _SUPPORT; ?></h2>
+    <h3><?php echo $thread["titre"]; ?></h3>
+    <br /><br />
+    <?php echo _REPLYSUCCESS; ?>
+    <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br />
+</div>
+
+        <?php     
+    }
+    }
+    }
 
 
     function recupTickets()
@@ -217,6 +258,9 @@ if ($lvlUser >= $level_access && $level_access > -1)
     
         case"view":
             viewThread($_REQUEST["id"]);
+            break;
+        case"reply":
+            reply($_REQUEST["id"], $_REQUEST["corps"]);
             break;
 
 	default:
