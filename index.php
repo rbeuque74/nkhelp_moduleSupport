@@ -86,6 +86,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
                    <?php } ?>
                 </select></td></tr>
         <tr><td><textarea class="editorsimpla" id="ns_corps" name="corps" cols="60" rows="12"></textarea></td></tr>
+        <tr><td><b><?php echo _NOTIFYME; ?> : </b>&nbsp;<input type="checkbox" name="notify" id="notify" checked="checked" /></td></tr>
 	<tr><td align="center"><br /><input type="submit" class="bouton" value="<?php echo _SEND; ?>" /></td></tr></table></form><br />
  <?php   }
     
@@ -136,7 +137,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
     }
 
     
-    function reply($thread_ID, $corps)
+    function reply($thread_ID, $corps, $new=0)
     {
         global $lvlUser, $nuked, $user;
         if(is_nan($thread_ID))
@@ -162,7 +163,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
             if(!$sql){
             ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
             }
-            else {
+            else if($new == 0) {
         ?>
 <div style="text-align:center;">
     <h2><?php echo _SUPPORT; ?></h2>
@@ -177,26 +178,37 @@ if ($lvlUser >= $level_access && $level_access > -1)
     }
     }
 
-    function addTicket($sujet, $corps)
+    function addTicket($sujet, $corps, $cat, $notify)
     {
         global $lvlUser, $nuked, $user;
+        if(is_nan($cat) OR is_null(getCatName($cat)))
+        {
+        ?> <div style="text-align:center;"><h2><?php echo _UNKNCAT; ?></h2></div><?php
+        }
+        else {
+            $time= time();
         $sql = mysql_query("INSERT INTO ". $nuked["prefix"] ."_support_threads (titre, date, closed, auteur, auteur_id, cat_id, notify) VALUES 
-            ('". mysql_real_escape_string($sujet) ."', '". time() ."', '0', '". mysql_real_escape_string($user[2]) ."', 
-                '". mysql_real_escape_string($user[0]) ."', CAT, NOTIFY) ");
+            ('". mysql_real_escape_string($sujet) ."', '". $time ."', '0', '". mysql_real_escape_string($user[2]) ."', 
+                '". mysql_real_escape_string($user[0]) ."', '". mysql_real_escape_string($cat) ."', '".$notify."') ");
         if(!$sql){
         ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
         }
         else {
+            $sql = mysql_query("SELECT id FROM ". $nuked["prefix"] ."_support_threads WHERE titre = '". mysql_real_escape_string($sujet) ."' AND date = '". $time ."' AND closed = '0' AND auteur = '". mysql_real_escape_string($user[2]) ."' AND 
+                auteur_id = '". mysql_real_escape_string($user[0]) ."' AND cat_id = '". mysql_real_escape_string($cat) ."' AND notify = '".$notify."' LIMIT 0,1 ");
+            $sql = mysql_fetch_assoc($sql); 
+            reply($sql["id"], $corps, 1);
         ?>
 <div style="text-align:center;">
     <h2><?php echo _SUPPORT; ?></h2>
     <h3><?php echo $thread["titre"]; ?></h3>
     <br /><br />
-    <?php echo _REPLYSUCCESS; ?>
+    <?php echo _TICKETSUCCESS; ?>
     <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br />
 </div>
 
         <?php     
+    }
     }
     }
     
@@ -297,6 +309,10 @@ if ($lvlUser >= $level_access && $level_access > -1)
             break;
         case"reply":
             reply($_REQUEST["id"], $_REQUEST["corps"]);
+            break;
+        case"post":
+            if(isset($_POST['notify']) AND ($_POST['notify'] == 'on')){$notify = 1;} else { $notify = 0; }
+            addTicket($_REQUEST["sujet"], $_REQUEST["corps"], $_REQUEST["cat"], $notify);
             break;
 
 	default:

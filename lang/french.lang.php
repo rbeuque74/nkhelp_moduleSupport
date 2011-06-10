@@ -10,6 +10,7 @@ define("_TICKETDONTEXIST","Ce ticket n'existe pas");
 define("_ERREUR","Erreur dans le traitement de votre demande");
 define("_LISTTICKETS","Liste des tickets");
 define("_REPLYSUCCESS","R&eacute;ponse envoy&eacute;e avec succ&egrave;s");
+define("_TICKETSUCCESS","Ticket envoy&eacute; avec succ&egrave;s");
 define("_SUJET","Sujet");
 define("_ADDTICKET","Ajouter un ticket");
 define("_CAT","Cat&eacute;gorie");
