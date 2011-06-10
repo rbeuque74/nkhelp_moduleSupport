@@ -41,6 +41,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
         ?>
 <div style="text-align:center;">
     <h2><?php echo _SUPPORT; ?></h2>
+    <h3><?php echo _LISTTICKETS; ?></h3>
 </div>
 <table width="100%" border="1" cellspacing="1" cellpadding="2">
     <tbody>
@@ -61,7 +62,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
         <tr>
             <td><?php echo $t["id"]; ?></td>
             <td><?php echo $t["titre"]; ?></td>
-            <td><?php $cat = getCatName($t["id"]); foreach($cat as $c){ $CAT = $c["nom"];} echo $CAT; ?></td>
+            <td><?php $cat = getCatName($t["cat_id"]); echo $cat["nom"]; ?></td>
             <td><?php echo strftime("%x %H:%M", $t["date"]); ?></td>
             <td><a href="index.php?file=Support&amp;op=view&amp;id=<?php echo $t["id"]; ?>"><?php echo _CONSULTREPLY; ?></a> - <?php echo _CLOSE; ?></td>
         </tr>
@@ -74,14 +75,18 @@ if ($lvlUser >= $level_access && $level_access > -1)
 </table>
 
 
-<br /><form method="post" action="index.php?file=Contact&amp;op=sendmail" onsubmit="return verifchamps()">
+<br /><br /><br /><form method="post" action="index.php?file=Support&amp;op=post">
 	<table style="margin-left: auto;margin-right: auto;text-align: left;" cellspacing="1" cellpadding="3" border="0">
-	<tr><td align="center"><big><b>" . _CONTACT </b></big><br /><br />" . _CONTACTFORM </td></tr>
-	<tr><td>&nbsp;</td></tr><tr><td><b>" . _YNICK  : </b>&nbsp;<input id="ns_pseudo" type="text" name="nom" size="26" value="" . $user[2]" /></td></tr>
-	<tr><td><b>" . _YMAIL  : </b>&nbsp;<input id="ns_email" type="text" name="mail" value="" size="30" /></td></tr>
-	<tr><td><b>" . _YSUBJECT  : </b>&nbsp;<input id="ns_sujet" type="text" name="sujet" value="" size="36" /></td></tr>
-	<tr><td>&nbsp;</td></tr><tr><td><b>" . _YCOMMENT  : </b><br /><textarea class="editorsimpla" id="ns_corps" name="corps" cols="60" rows="12"></textarea></td></tr>
-	<tr><td align="center"><br /><input type="submit" class="bouton" value="" . _SEND " /></td></tr></table></form><br />;
+	<tr><td align="center"><h3><?php echo _ADDTICKET; ?></h3></td></tr>
+	<tr><td><b><?php echo _SUJET; ?> : </b>&nbsp;<input id="ns_sujet" type="text" name="sujet" value="" size="36" /></td></tr>
+	<tr><td><b><?php echo _CAT; ?> : </b>&nbsp;
+                <select name="cat" id="cat">
+                    <?php $cat = recupCat(); while($c = mysql_fetch_assoc($cat)){ ?>
+                   <option value="<?php echo $c["id"]; ?>"><?php echo $c["nom"]; ?></option>
+                   <?php } ?>
+                </select></td></tr>
+        <tr><td><textarea class="editorsimpla" id="ns_corps" name="corps" cols="60" rows="12"></textarea></td></tr>
+	<tr><td align="center"><br /><input type="submit" class="bouton" value="<?php echo _SEND; ?>" /></td></tr></table></form><br />
  <?php   }
     
     function viewThread($thread_ID)
@@ -120,7 +125,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
 <br />
 <form method="post" action="index.php?file=Support&amp;op=reply">
     <table style="margin-left: auto;margin-right: auto;text-align: left;" cellspacing="1" cellpadding="3" border="0">
-	<tr><td align="center"><h2><b><?php echo _REPLY; ?></b></h2><input type="text" style="display:none;" name="id" id="id" size="5" value="<?php echo $thread_ID; ?>" /></td></tr>
+	<tr><td align="center"><h3><b><?php echo _REPLY; ?></b></h3><input type="text" style="display:none;" name="id" id="id" size="5" value="<?php echo $thread_ID; ?>" /></td></tr>
 	<tr><td><textarea class="editorsimpla" id="ns_corps" name="corps" cols="60" rows="12"></textarea></td></tr>
 	<tr><td align="center"><br /><input type="submit" class="bouton" value="<?php echo _SEND; ?>"/></td></tr>
     </table>
@@ -172,6 +177,30 @@ if ($lvlUser >= $level_access && $level_access > -1)
     }
     }
 
+    function addTicket($sujet, $corps)
+    {
+        global $lvlUser, $nuked, $user;
+        $sql = mysql_query("INSERT INTO ". $nuked["prefix"] ."_support_threads (titre, date, closed, auteur, auteur_id, cat_id, notify) VALUES 
+            ('". mysql_real_escape_string($sujet) ."', '". time() ."', '0', '". mysql_real_escape_string($user[2]) ."', 
+                '". mysql_real_escape_string($user[0]) ."', CAT, NOTIFY) ");
+        if(!$sql){
+        ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
+        }
+        else {
+        ?>
+<div style="text-align:center;">
+    <h2><?php echo _SUPPORT; ?></h2>
+    <h3><?php echo $thread["titre"]; ?></h3>
+    <br /><br />
+    <?php echo _REPLYSUCCESS; ?>
+    <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br />
+</div>
+
+        <?php     
+    }
+    }
+    
+
 
     function recupTickets()
     {
@@ -183,6 +212,12 @@ if ($lvlUser >= $level_access && $level_access > -1)
     {
 	global $nuked, $user;
     	$sql = mysql_query("SELECT * FROM ". $nuked["prefix"] ."_support_messages WHERE thread_id = '" . $thread_id . "' ORDER BY date ASC");
+        return $sql;
+    }
+    function recupCat()
+    {
+	global $nuked, $user;
+    	$sql = mysql_query("SELECT * FROM ". $nuked["prefix"] ."_support_cat ORDER BY ordre ASC");
         return $sql;
     }
     function recupThread($thread_id)
@@ -197,6 +232,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
 	global $nuked;
 
     	$sql = mysql_query("SELECT nom FROM ". $nuked["prefix"] ."_support_cat WHERE id = '" . $catID . "' ORDER BY id DESC LIMIT 0,1");
+        $sql = mysql_fetch_assoc($sql);
         return $sql;
     }
     function sendmail($nom, $mail, $sujet, $corps)

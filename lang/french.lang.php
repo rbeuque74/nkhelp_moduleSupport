@@ -11,6 +11,10 @@ define("_ERREUR","Erreur dans le traitement de votre demande");
 define("_LISTTICKETS","Liste des tickets");
 define("_REPLYSUCCESS","R&eacute;ponse envoy&eacute;e avec succ&egrave;s");
 define("_SUJET","Sujet");
+define("_ADDTICKET","Ajouter un ticket");
+define("_CAT","Cat&eacute;gorie");
+define("_UNKNCAT","Cat&eacute;gorie inconnue");
+define("_NOTIFYME","Me notifier par email ? ");
 define("_FLOODCMAIL","Vous avez d&eacute;ja post&eacute; un email il y a moins de " . $nuked['contact_flood'] . " minutes,<br />veuillez patienter avant de renvoyer un autre email...");
 
 define("_NOENTRANCE","D&eacute;sol&eacute; mais vous n'avez pas les droits pour acceder &agrave; cette page");
