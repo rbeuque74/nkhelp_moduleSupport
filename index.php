@@ -63,7 +63,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
             <td><?php echo $t["titre"]; ?></td>
             <td><?php $cat = getCatName($t["id"]); foreach($cat as $c){ $CAT = $c["nom"];} echo $CAT; ?></td>
             <td><?php echo strftime("%x %H:%M", $t["date"]); ?></td>
-            <td><a href="index.php?file=Support&amp;op=view&amp;id=<?php echo $t["id"]; ?>">viewreply</a> close</td>
+            <td><a href="index.php?file=Support&amp;op=view&amp;id=<?php echo $t["id"]; ?>"><?php echo _CONSULTREPLY; ?></a> - <?php echo _CLOSE; ?></td>
         </tr>
         <?php  
             }

@@ -3,6 +3,8 @@ define("_SUPPORT","Support");
 define("_PASPROPRIOTICKET","Vous n'etes pas propriétaire du ticket");
 define("_YOUWROTE","Vous avez écrit le ");
 define("_WROTE"," a écrit le ");
+define("_CONSULTREPLY","Consulter/Répondre");
+define("_CLOSE","Fermer");
 define("_FLOODCMAIL","Vous avez d�ja post� un email il y'a moins de " . $nuked['contact_flood'] . " minutes,<br />veuillez patienter avant de renvoyer un autre email...");
 
 define("_NOENTRANCE","D�sol� mais vous n'avez pas les droits pour acc�der � cette page");
