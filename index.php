@@ -259,7 +259,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
             if(!$sql){
             ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
             }
-            else if($new == 0) {
+            else {
         ?>
 <div style="text-align:center;">
     <h2><?php echo _SUPPORT; ?></h2>
@@ -299,7 +299,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
             if(!$sql){
             ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
             }
-            else if($new == 0) {
+            else {
         ?>
 <div style="text-align:center;">
     <h2><?php echo _SUPPORT; ?></h2>
