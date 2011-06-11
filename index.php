@@ -29,6 +29,7 @@ else
 
 $ModName = basename(dirname(__FILE__));
 $level_access = nivo_mod($ModName);
+if($level_access == 0){$level_access = 1;}
 if ($lvlUser >= $level_access && $level_access > -1)
 {
     function index()
@@ -194,7 +195,8 @@ if ($lvlUser >= $level_access && $level_access > -1)
         ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
         }
         else {
-            $sql = mysql_query("SELECT id FROM ". $nuked["prefix"] ."_support_threads WHERE titre = '". mysql_real_escape_string($sujet) ."' AND date = '". $time ."' AND closed = '0' AND auteur = '". mysql_real_escape_string($user[2]) ."' AND 
+            $sql = mysql_query("SELECT id FROM ". $nuked["prefix"] ."_support_threads WHERE titre = '". mysql_real_escape_string($sujet) ."' AND date = '". $time ."' 
+                AND closed = '0' AND auteur = '". mysql_real_escape_string($user[2]) ."' AND 
                 auteur_id = '". mysql_real_escape_string($user[0]) ."' AND cat_id = '". mysql_real_escape_string($cat) ."' AND notify = '".$notify."' LIMIT 0,1 ");
             $sql = mysql_fetch_assoc($sql); 
             reply($sql["id"], $corps, 1);
@@ -287,7 +289,8 @@ if ($lvlUser >= $level_access && $level_access > -1)
 	    $subject = htmlentities($sujet, ENT_QUOTES);
 	    $text = secu_html(html_entity_decode($corps, ENT_QUOTES));
 
-	    $add = mysql_query("INSERT INTO " . CONTACT_TABLE . " ( `id` , `titre` , `message` , `email` , `nom` , `ip` , `date` ) VALUES ( '' , '" . $subject . "' , '" . $text . "' , '" . $email . "' , '" . $name . "' , '" . $user_ip . "' , '" . $time . "' )");
+	    $add = mysql_query("INSERT INTO " . CONTACT_TABLE . " ( `id` , `titre` , `message` , `email` , `nom` , `ip` , `date` ) 
+                VALUES ( '' , '" . $subject . "' , '" . $text . "' , '" . $email . "' , '" . $name . "' , '" . $user_ip . "' , '" . $time . "' )");
 		$upd = mysql_query("INSERT INTO ". $nuked['prefix'] ."_notification  (`date` , `type` , `texte`)  VALUES ('".$time."', '1', '"._NOTCON.": [<a href=\"index.php?file=Contact&page=admin\">lien</a>].')");
 	    echo "<br /><br /><div style=\"text-align: center;\">" . _SENDCMAIL . "</div><br /><br />";
 	    redirect("index.php", 3);
