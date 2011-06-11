@@ -14,7 +14,7 @@ if (!defined("INDEX_CHECK"))
 } 
 
 global $user, $language;
-translate("modules/Contact/lang/" . $language . ".lang.php");
+translate("modules/Support/lang/" . $language . ".lang.php");
 include("modules/Admin/design.php");
 admintop();
 
@@ -32,62 +32,50 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 {
     function main()
     {
-	global $nuked, $language;
+	global $nuked, $language; ?>
 
-	echo "<script type=\"text/javascript\">\n"
-	. "<!--\n"
-	. "\n"
-	. "function delmail(nom, id)\n"
-	. "{\n"
-	. "if (confirm('" . _DELETEMESSAGEFROM . " : '+nom+' ?'))\n"
-	. "{document.location.href = 'index.php?file=Contact&page=admin&op=del&mid='+id;}\n"
-	. "}\n"
-	. "\n"
-	. "// -->\n"
-	. "</script>\n";
+<div class="content-box"> 
+		<div class="content-box-header"><h3><?php echo _ADMINSUPPORT; ?></h3>
+        <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Contact.php" rel="modal">
+	<img style="border: 0;" src="help/help.gif" alt="" title="<?php echo _HELP; ?>" /></a>
+	</div></div>
+	<div class="tab-content" id="tab2"><div style="text-align: center;"><?php echo _LISTTICKETS." ". _OUVERTS; ?> <b> | 
+	<a href="index.php?file=Contact&amp;page=admin&amp;op=listClose"><?php echo _LISTTICKETS." ". _FERMES; ?></a></b><b> | 
+	<a href="index.php?file=Contact&amp;page=admin&amp;op=main_pref"><?php echo _PREFS; ?></a></b></div><br />
+	<table style="margin-left: auto;margin-right: auto;text-align: left;" width="90%"  border="0" cellspacing="1" cellpadding="2">
+	<tr>
+	<td style="width: 10%;" align="center"><b>#</b></td>
+	<td style="width: 30%;" align="center"><b><?php echo _SUJET; ?></b></td>
+	<td style="width: 20%;" align="center"><b><?php echo _MEMBRE; ?></b></td>
+	<td style="width: 20%;" align="center"><b><?php echo _DATE; ?></b></td>
+	<td style="width: 20%;" align="center"><b><?php echo _OPERATIONS; ?></b></td></tr>
+<?php
+	$cat = recupCat(); $nbTickets = 0;
+        while($c = mysql_fetch_assoc($cat))
+        {
+            $tickets = recupTicketsCat($c["id"]);
+            if(mysql_num_rows($tickets) == 0){
+                break;
+            } ?>
+            <tr><td colspan="5"><br /><h4><?php echo $c["nom"]; ?></h4></td></tr>
+            <?php while($t = mysql_fetch_assoc($tickets))
+            { $t["date"] = strftime("%d/%m/%Y %H:%M", $t["date"]); ?>
+                <tr>
+	<td style="width: 10%;"><?php echo $t["id"]; ?></td>
+	<td style="width: 30%;"><?php echo $t["titre"]; ?></td>
+	<td style="width: 20%;"><?php echo $t["auteur"]; ?></td>
+	<td style="width: 20%;"><?php echo $t["date"]; ?></td>
+	<td style="width: 20%;"><a href="index.php?file=Support&amp;op=view&amp;id=<?php echo $t["id"]; ?>"><?php echo _CONSULT.'/'._REPLY; ?></a> - <a href="index.php?file=Support&amp;op=close&amp;id=<?php echo $t["id"]; ?>"><?php echo _CLOSE; ?></a></td></tr>
+            <?php $nbTickets++; }
 
-	echo "<div class=\"content-box\">\n" //<!-- Start Content Box -->
-		. "<div class=\"content-box-header\"><h3>" . _ADMINCONTACT . "</h3>\n"
-        . "<div style=\"text-align:right;\"><a href=\"help/" . $language . "/Contact.php\" rel=\"modal\">\n"
-	. "<img style=\"border: 0;\" src=\"help/help.gif\" alt=\"\" title=\"" . _HELP . "\" /></a>\n"
-	. "</div></div>\n"
-	. "<div class=\"tab-content\" id=\"tab2\"><div style=\"text-align: center;\">" . _LISTMAIL . "<b> | "
-	. "<a href=\"index.php?file=Contact&amp;page=admin&amp;op=main_pref\">" . _PREFS . "</a></b></div><br />\n"
-	. "<table style=\"margin-left: auto;margin-right: auto;text-align: left;\" width=\"90%\"  border=\"0\" cellspacing=\"1\" cellpadding=\"2\">\n"
-	. "<tr>\n"
-	. "<td style=\"width: 10%;\" align=\"center\"><b>#</b></td>\n"
-	. "<td style=\"width: 30%;\" align=\"center\"><b>" . _TITLE . "</b></td>\n"
-	. "<td style=\"width: 20%;\" align=\"center\"><b>" . _NAME . "</b></td>\n"
-	. "<td style=\"width: 20%;\" align=\"center\"><b>" . _DATE . "</b></td>\n"
-	. "<td style=\"width: 10%;\" align=\"center\"><b>" . _READMESS . "</b></td>\n"
-	. "<td style=\"width: 10%;\" align=\"center\"><b>" . _DEL . "</b></td></tr>\n";
+        }
+        
 
-	$sql = mysql_query("SELECT id, titre, nom, email, date FROM " . CONTACT_TABLE . " ORDER BY id");
-	$count = mysql_num_rows($sql);
-	$l = 0;
 
-	while (list($id, $titre, $nom, $email, $date) = mysql_fetch_array($sql))
-	{
-	    $day = strftime("%d/%m/%Y %H:%M", $date);
-	    $l++;
+	if ($nbTickets == 0) echo "<tr><td align=\"center\" colspan=\"5\">" . _NOTICKETS . "</td></tr>\n"; ?>
 
-	    if (strlen($titre) > 45) $title = substr($titre, 0, 45) . "...";
-	    else $title = $titre;
-
-		$name = addslashes($nom);
-	    echo "<tr>\n"
-	    . "<td style=\"width: 10%;\" align=\"center\">" . $l . "</td>\n"
-	    . "<td style=\"width: 30%;\" align=\"center\">" . $title . "</td>\n"
-	    . "<td style=\"width: 20%;\" align=\"center\"><a href=\"mailto:" . $email . "\">" . $nom . "</a></td>\n"
-	    . "<td style=\"width: 20%;\" align=\"center\">" . $day . "</td>\n"
-	    . "<td style=\"width: 10%;\" align=\"center\"><a href=\"index.php?file=Contact&amp;page=admin&amp;op=view&amp;mid=" . $id . "\"><img style=\"border: 0;\" src=\"images/report.gif\" alt=\"\" title=\"" . _READTHISMESS. "\" /></a></td>\n"
-	    . "<td style=\"width: 10%;\" align=\"center\"><a href=\"javascript:delmail('" . $name . "','" . $id . "');\"><img style=\"border: 0;\" src=\"images/del.gif\" alt=\"\" title=\"" . _DELTHISMESS . "\" /></a></td></tr>\n";
-	}
-
-	if ($count == 0) echo "<tr><td align=\"center\" colspan=\"6\">" . _NOMESSINDB . "</td></tr>\n";
-
-	echo "</table><br /><div style=\"text-align: center;\">[ <a href=\"index.php?file=Admin\"><b>" . _BACK . "</b></a> ]</div><br /></div></div>";
-    }
+	</table><br /><div style="text-align: center;">[ <a href="index.php?file=Admin"><b><?php echo _BACK; ?></b></a> ]</div><br /></div></div>
+    <?php }
 
 
     function view($mid)
@@ -187,6 +175,52 @@ if ($visiteur >= $level_admin && $level_admin > -1)
         redirect("index.php?file=Contact&page=admin", 2);
     } 
 
+    
+    
+    function recupTicketsCat($cat_ID)
+    {
+	global $nuked;
+        if(is_nan($cat_ID)){return 0;}
+    	$sql = mysql_query("SELECT * FROM ". $nuked["prefix"] ."_support_threads WHERE cat_id = '" . $cat_ID . "' AND closed = 0 ORDER BY id DESC");
+        return $sql;
+    }
+    function recupTicketsCatClose($cat_ID)
+    {
+	global $nuked;
+        if(is_nan($cat_ID)){return 0;}
+    	$sql = mysql_query("SELECT * FROM ". $nuked["prefix"] ."_support_threads WHERE cat_id = '" . $cat_ID . "' AND closed = 1 ORDER BY id DESC");
+        return $sql;
+    }
+    function recupThreadMessages($thread_id)
+    {
+	global $nuked, $user;
+    	$sql = mysql_query("SELECT * FROM ". $nuked["prefix"] ."_support_messages WHERE thread_id = '" . $thread_id . "' ORDER BY date ASC");
+        return $sql;
+    }
+    function recupCat()
+    {
+	global $nuked, $user;
+    	$sql = mysql_query("SELECT * FROM ". $nuked["prefix"] ."_support_cat ORDER BY ordre ASC");
+        return $sql;
+    }
+    function recupThread($thread_id)
+    {
+	global $nuked, $user;
+    	$sql = mysql_query("SELECT * FROM ". $nuked["prefix"] ."_support_threads WHERE id = '" . $thread_id . "' ORDER BY id DESC LIMIT 0,1");
+        $sql = mysql_fetch_assoc($sql);
+        return $sql;
+    }
+    function getCatName($catID)
+    {
+	global $nuked;
+        if(is_nan($cat_ID)){return 0;}
+    	$sql = mysql_query("SELECT nom FROM ". $nuked["prefix"] ."_support_cat WHERE id = '" . $catID . "' ORDER BY id DESC LIMIT 0,1");
+        $sql = mysql_fetch_assoc($sql);
+        return $sql;
+    }
+    
+    
+    
     switch($_REQUEST['op'])
     {
 	case "view":

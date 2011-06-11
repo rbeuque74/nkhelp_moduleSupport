@@ -48,11 +48,11 @@ if ($lvlUser >= $level_access && $level_access > -1)
 <table width="100%" border="1" cellspacing="1" cellpadding="2">
     <tbody>
         <tr>
-            <td><b>ID</b></td>
-            <td><b>Sujet</b></td>
-            <td><b>Cat&eacute;gorie</b></td>
-            <td><b>Date</b></td>
-            <td><b>Op&eacute;rations</b></td>
+            <td><b>#</b></td>
+            <td><b><?php echo _SUJET; ?></b></td>
+            <td><b><?php echo _CAT; ?></b></td>
+            <td><b><?php echo _DATE; ?></b></td>
+            <td><b><?php echo _OPERATIONS; ?></b></td>
         </tr>
         <?php if($lvlUser == 0){ ?>
         <tr>
