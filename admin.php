@@ -40,8 +40,8 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 	<img style="border: 0;" src="help/help.gif" alt="" title="<?php echo _HELP; ?>" /></a>
 	</div></div>
 	<div class="tab-content" id="tab2"><div style="text-align: center;"><?php echo _LISTTICKETS." ". _OUVERTS; ?> <b> | 
-	<a href="index.php?file=Contact&amp;page=admin&amp;op=listClose"><?php echo _LISTTICKETS." ". _FERMES; ?></a></b><b> | 
-	<a href="index.php?file=Contact&amp;page=admin&amp;op=main_pref"><?php echo _PREFS; ?></a></b></div><br />
+	<a href="index.php?file=Support&amp;page=admin&amp;op=listClose"><?php echo _LISTTICKETS." ". _FERMES; ?></a> | 
+	<a href="index.php?file=Support&amp;page=admin&amp;op=main_pref"><?php echo _PREFS; ?></a></b></div><br />
 	<table style="margin-left: auto;margin-right: auto;text-align: left;" width="90%"  border="0" cellspacing="1" cellpadding="2">
 	<tr>
 	<td style="width: 10%;" align="center"><b>#</b></td>
@@ -65,7 +65,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 	<td style="width: 30%;"><?php echo $t["titre"]; ?></td>
 	<td style="width: 20%;"><?php echo $t["auteur"]; ?></td>
 	<td style="width: 20%;"><?php echo $t["date"]; ?></td>
-	<td style="width: 20%;"><a href="index.php?file=Support&amp;op=view&amp;id=<?php echo $t["id"]; ?>"><?php echo _CONSULT.'/'._REPLY; ?></a> - <a href="index.php?file=Support&amp;op=close&amp;id=<?php echo $t["id"]; ?>"><?php echo _CLOSE; ?></a></td></tr>
+	<td style="width: 20%;"><a href="index.php?file=Support&amp;page=admin&amp;op=view&amp;id=<?php echo $t["id"]; ?>"><?php echo _CONSULT.'/'._REPLY; ?></a> - <a href="index.php?file=Support&amp;page=admin&amp;op=close&amp;id=<?php echo $t["id"]; ?>"><?php echo _CLOSE; ?></a></td></tr>
             <?php $nbTickets++; }
 
         }
@@ -76,32 +76,106 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 
 	</table><br /><div style="text-align: center;">[ <a href="index.php?file=Admin"><b><?php echo _BACK; ?></b></a> ]</div><br /></div></div>
     <?php }
+    
+    function listClose()
+    {
+        global $nuked, $language;  ?>
+
+<div class="content-box"> 
+		<div class="content-box-header"><h3><?php echo _ADMINSUPPORT; ?></h3>
+        <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Contact.php" rel="modal">
+	<img style="border: 0;" src="help/help.gif" alt="" title="<?php echo _HELP; ?>" /></a>
+	</div></div>
+	<div class="tab-content" id="tab2"><div style="text-align: center;"><b><a href="index.php?file=Support&amp;page=admin"><?php echo _LISTTICKETS." ". _OUVERTS; ?></a> | 
+	</b><?php echo _LISTTICKETS." ". _FERMES; ?><b> | 
+	<a href="index.php?file=Support&amp;page=admin&amp;op=main_pref"><?php echo _PREFS; ?></a></b></div><br />
+	<table style="margin-left: auto;margin-right: auto;text-align: left;" width="90%"  border="0" cellspacing="1" cellpadding="2">
+	<tr>
+	<td style="width: 10%;" align="center"><b>#</b></td>
+	<td style="width: 30%;" align="center"><b><?php echo _SUJET; ?></b></td>
+	<td style="width: 20%;" align="center"><b><?php echo _MEMBRE; ?></b></td>
+	<td style="width: 20%;" align="center"><b><?php echo _DATE; ?></b></td>
+	<td style="width: 20%;" align="center"><b><?php echo _OPERATIONS; ?></b></td></tr>
+        
+<?php
+	$cat = recupCat(); $nbTickets = 0;
+        while($c = mysql_fetch_assoc($cat))
+        {
+            $tickets = recupTicketsCatClose($c["id"]);
+            if(mysql_num_rows($tickets) == 0){
+                break;
+            } ?>
+            <tr><td colspan="5"><br /><h4><?php echo $c["nom"]; ?></h4></td></tr>
+            <?php while($t = mysql_fetch_assoc($tickets))
+            { $t["date"] = strftime("%d/%m/%Y %H:%M", $t["date"]); ?>
+                <tr>
+	<td style="width: 10%;"><?php echo $t["id"]; ?></td>
+	<td style="width: 30%;"><?php echo $t["titre"]; ?></td>
+	<td style="width: 20%;"><?php echo $t["auteur"]; ?></td>
+	<td style="width: 20%;"><?php echo $t["date"]; ?></td>
+        <td style="width: 20%;"><a href="index.php?file=Support&amp;page=admin&amp;op=view&amp;id=<?php echo $t["id"]; ?>"><?php echo _CONSULT; ?></a> - <a href="index.php?file=Support&amp;page=admin&amp;op=open&amp;id=<?php echo $t["id"]; ?>"><?php echo _OPEN; ?></a></td>
+        </tr>
+        <?php $nbTickets++; }
+
+        }
+        
+
+
+	if ($nbTickets == 0) echo "<tr><td align=\"center\" colspan=\"5\">" . _NOTICKETS . "</td></tr>\n"; ?>
+
+	</table><br /><div style="text-align: center;">[ <a href="index.php?file=Admin"><b><?php echo _BACK; ?></b></a> ]</div><br /></div></div>
+    <?php }
+ 
+    function viewThread($thread_ID)
+    {
+        global $nuked, $language;
+        $thread = recupThread($thread_ID);
+        if(empty($thread["id"]))
+        {
+            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
+        }
+        else
+        {
+            $messages = recupThreadMessages($thread_ID);
+        
+        ?>
+<div class="content-box"> 
+		<div class="content-box-header"><h3><?php echo _ADMINSUPPORT; ?></h3>
+        <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Contact.php" rel="modal">
+	<img style="border: 0;" src="help/help.gif" alt="" title="<?php echo _HELP; ?>" /></a>
+	</div></div>
+	<div class="tab-content" id="tab2"><div style="text-align: center;"><b><a href="index.php?file=Support&amp;page=admin"><?php echo _LISTTICKETS." ". _OUVERTS; ?></a> | 
+	<a href="index.php?file=Support&amp;page=admin&amp;op=listClose"><?php echo _LISTTICKETS." ". _FERMES; ?></a> | 
+	<a href="index.php?file=Support&amp;page=admin&amp;op=main_pref"><?php echo _PREFS; ?></a></b></div><br />
+    <h4>&nbsp;&nbsp;<?php echo _SUJET." : ".$thread["titre"]; ?></h4><br />
+</div><div style="padding:10px;">
+        <?php while($m = mysql_fetch_assoc($messages)){ if($m["admin"] == 0){ ?>
+<div style="width:100%;"><b><?php echo $m["auteur"] . _WROTE . strftime("%x %H:%M", $m["date"]) ?></b><br />
+<?php echo $m["texte"] ?></div>
+            <?php } else { ?>
+<div style="width:100%; background-color: yellow;"><b><?php echo $m["auteur"] . _WROTE . strftime("%x %H:%M", $m["date"]) ?></b><br />
+<?php echo $m["texte"] ?></div>
+            <?php }
+        } ?> </div>
+
+<br />
+<?php if($thread["closed"] == 0) { ?>
+<form method="post" action="index.php?file=Support&amp;page=admin&amp;op=reply">
+    <table style="margin-left: auto;margin-right: auto;text-align: left;" cellspacing="1" cellpadding="3" border="0">
+	<tr><td align="center"><h3><b><?php echo _REPLY; ?></b></h3><input type="text" style="display:none;" name="id" id="id" size="5" value="<?php echo $thread_ID; ?>" /></td></tr>
+	<tr><td align="center"><textarea class="editorsimpla" id="ns_corps" name="corps" cols="60" rows="12"></textarea><br /><input type="submit" class="bouton" value="<?php echo _SEND; ?>"/></td></tr>
+    </table>
+</form><div style="text-align:center;"><br /><a href="index.php?file=Support&amp;page=admin&amp;op=close&amp;id=<?php echo $thread["id"]; ?>">[ <?php echo _CLOSE." "._THISTICKET; ?> ]</a><br /><br /></div><?php } else { ?>
+
+<div style="text-align:center;"><br /><a href="index.php?file=Support&amp;page=admin&amp;op=open&amp;id=<?php echo $thread["id"]; ?>">[ <?php echo _OPEN." "._THISTICKET; ?> ]</a><br /><br /></div><?php } 
+    }
+    }
 
 
     function view($mid)
     {
-	global $nuked, $language;
-
-	$sql = mysql_query("SELECT titre, message, nom, ip, email, date FROM " . CONTACT_TABLE . " WHERE id = '" . $mid . "'");
-	list($titre, $message, $nom, $ip, $email, $date) = mysql_fetch_array($sql);
-
-	$day = strftime("%x %H:%M", $date);
-
-	$message = str_replace("\r", "", $message);
-	$message = str_replace("\n", "<br />", $message);
-
-	echo "<script type=\"text/javascript\">\n"
-	. "<!--\n"
-	. "\n"
-	. "function delmail(nom, id)\n"
-	. "{\n"
-	. "if (confirm('" . _DELETEMESSAGEFROM . " : '+nom+' ?'))\n"
-	. "{document.location.href = 'index.php?file=Contact&page=admin&op=del&mid='+id;}\n"
-	. "}\n"
-	. "\n"
-	. "// -->\n"
-	. "</script>\n";
-	$name = addslashes($nom);
+	
        echo "<div class=\"content-box\">\n" //<!-- Start Content Box -->
 		. "<div class=\"content-box-header\"><h3>" . _ADMINCONTACT . "</h3>\n"
         . "<div style=\"text-align:right;\"><a href=\"help/" . $language . "/Contact.php\" rel=\"modal\">\n"
@@ -224,11 +298,11 @@ if ($visiteur >= $level_admin && $level_admin > -1)
     switch($_REQUEST['op'])
     {
 	case "view":
-	view($_REQUEST['mid']);
+	viewThread($_REQUEST['id']);
 	break;
 
-	case "del":
-	del($_REQUEST['mid']);
+	case "listClose":
+            listClose();
 	break;
 
 	case "main_pref":
