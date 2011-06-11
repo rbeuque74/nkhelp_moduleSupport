@@ -148,16 +148,17 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 	<div class="tab-content" id="tab2"><div style="text-align: center;"><b><a href="index.php?file=Support&amp;page=admin"><?php echo _LISTTICKETS." ". _OUVERTS; ?></a> | 
 	<a href="index.php?file=Support&amp;page=admin&amp;op=listClose"><?php echo _LISTTICKETS." ". _FERMES; ?></a> | 
 	<a href="index.php?file=Support&amp;page=admin&amp;op=main_pref"><?php echo _PREFS; ?></a></b></div><br />
-    <h4>&nbsp;&nbsp;<?php echo _SUJET." : ".$thread["titre"]; ?></h4><br />
-</div><div style="padding:10px;">
+    <table style="margin-left: auto;margin-right: auto;text-align: left;" cellspacing="1" cellpadding="3" border="0">
+	<tr><td align="center"><h4>&nbsp;&nbsp;<?php echo _SUJET." : ".$thread["titre"]; ?></h4></td></tr>
+
         <?php while($m = mysql_fetch_assoc($messages)){ if($m["admin"] == 0){ ?>
-<div style="width:100%;"><b><?php echo $m["auteur"] . _WROTE . strftime("%x %H:%M", $m["date"]) ?></b><br />
-<?php echo $m["texte"] ?></div>
+<tr><td><b><?php echo $m["auteur"] . _WROTE . strftime("%x %H:%M", $m["date"]) ?></b><br />
+<?php echo $m["texte"] ?></td></tr>
             <?php } else { ?>
-<div style="width:100%; background-color: yellow;"><b><?php echo $m["auteur"] . _WROTE . strftime("%x %H:%M", $m["date"]) ?></b><br />
-<?php echo $m["texte"] ?></div>
+<tr><td style="background-color: yellow;"><b>{admin} <?php echo $m["auteur"] . _WROTE . strftime("%x %H:%M", $m["date"]) ?></b><br />
+<?php echo $m["texte"] ?></td></tr>
             <?php }
-        } ?> </div>
+        } ?> </table>
 
 <br />
 <?php if($thread["closed"] == 0) { ?>
@@ -166,49 +167,138 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 	<tr><td align="center"><h3><b><?php echo _REPLY; ?></b></h3><input type="text" style="display:none;" name="id" id="id" size="5" value="<?php echo $thread_ID; ?>" /></td></tr>
 	<tr><td align="center"><textarea class="editorsimpla" id="ns_corps" name="corps" cols="60" rows="12"></textarea><br /><input type="submit" class="bouton" value="<?php echo _SEND; ?>"/></td></tr>
     </table>
-</form><div style="text-align:center;"><br /><a href="index.php?file=Support&amp;page=admin&amp;op=close&amp;id=<?php echo $thread["id"]; ?>">[ <?php echo _CLOSE." "._THISTICKET; ?> ]</a><br /><br /></div><?php } else { ?>
+</form><div style="text-align:center;"><br />[ <a href="index.php?file=Support&amp;page=admin&amp;op=close&amp;id=<?php echo $thread["id"]; ?>"><b><?php echo _CLOSE." "._THISTICKET; ?></b></a> ] - [ <a href="index.php?file=Admin"><b><?php echo _BACK; ?></b></a> ]<br /><br /></div><?php } else { ?>
 
-<div style="text-align:center;"><br /><a href="index.php?file=Support&amp;page=admin&amp;op=open&amp;id=<?php echo $thread["id"]; ?>">[ <?php echo _OPEN." "._THISTICKET; ?> ]</a><br /><br /></div><?php } 
+<div style="text-align:center;"><br />[ <a href="index.php?file=Support&amp;page=admin&amp;op=open&amp;id=<?php echo $thread["id"]; ?>"><b><?php echo _OPEN." "._THISTICKET; ?></b></a> ] - [ <a href="index.php?file=Admin"><b><?php echo _BACK; ?></b></a> ]<br /><br /></div><?php } ?>
+</div></div>
+<?php    }
     }
-    }
 
 
-    function view($mid)
+    function reply($thread_ID, $corps, $new=0)
     {
-	
-       echo "<div class=\"content-box\">\n" //<!-- Start Content Box -->
-		. "<div class=\"content-box-header\"><h3>" . _ADMINCONTACT . "</h3>\n"
-        . "<div style=\"text-align:right;\"><a href=\"help/" . $language . "/Contact.php\" rel=\"modal\">\n"
-	. "<img style=\"border: 0;\" src=\"help/help.gif\" alt=\"\" title=\"" . _HELP . "\" /></a>\n"
-	. "</div></div>\n"
-	. "<div class=\"tab-content\" id=\"tab2\"><table style=\"margin-left: auto;margin-right: auto;text-align: left;\" width=\"90%\" cellspacing=\"1\" cellpadding=\"4\">\n"
-	. "<tr><td>" . _FROM . "  <a href=\"mailto:" . $email . "\"><b>" . $nom . "</b></a> (IP : " . $ip . ") " . _THE . " " . $day . "</td></tr>\n"
-	. "<tr><td><b>" . _YSUBJECT . " :</b> " . $titre . "</td></tr>\n"
-	. "<tr><td><br />" . $message . "</td></tr></table>\n"
-	. "<div style=\"text-align: center;\"><br /><input type=\"button\" value=\"" . _DELTHISMESS . "\" onclick=\"javascript:delmail('" . $name . "', '" . $mid . "');\" />\n"
-	. "<br /><br />[ <a href=\"index.php?file=Contact&amp;page=admin\"><b>" . _BACK . "</b></a> ]</div><br /></div></div>\n";
+        global $nuked, $language, $user; ?>
+<div class="content-box"> 
+		<div class="content-box-header"><h3><?php echo _ADMINSUPPORT; ?></h3>
+        <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Contact.php" rel="modal">
+	<img style="border: 0;" src="help/help.gif" alt="" title="<?php echo _HELP; ?>" /></a>
+	</div></div>
+    <div class="tab-content" id="tab2"> <?php
+        if(is_nan($thread_ID))
+        {
+            ?> <div style="text-align:center;"><h3><?php echo _TICKETDONTEXIST; ?></h3>
+            <br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
+        }
+        $thread = recupThread($thread_ID);
+        if(empty($thread["id"]))
+        {
+            ?> <div style="text-align:center;"><h3><?php echo _TICKETDONTEXIST; ?></h3>
+            <br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
+        }
+        else { 
+            $sql = mysql_query("INSERT INTO ". $nuked["prefix"] ."_support_messages (texte, date, auteur, auteur_id, auteur_ip, thread_id, admin) VALUES 
+                ('". secu_html(html_entity_decode($corps, ENT_QUOTES)) ."', '". time() ."', '". mysql_real_escape_string($user[2]) ."', 
+                    '". mysql_real_escape_string($user[0]) ."', '". mysql_real_escape_string($user[3]) ."', '". mysql_real_escape_string($thread_ID) ."', '1') ");
+            if(!$sql){
+            ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
+            }
+            else if($new == 0) {
+        ?>
+<div class="notification success png_bg">
+	<div>
+	<?php echo _REPLYSUCCESS; ?>
+	</div>
+	</div>
+	<?php redirect("index.php?file=Support&page=admin", 2); ?>
+    </div></div>
 
+        <?php     
     }
-
-
-    function del($mid)
+    }
+    }
+    
+    function close($thread_ID)
     {
-	global $nuked, $user;
-	
-	$sql = mysql_query("DELETE FROM " . CONTACT_TABLE . " WHERE id = '" . $mid . "'");
-	// Action
-	$texteaction = "". _ACTIONDELCONTACT .".";
-	$acdate = time();
-	$sqlaction = mysql_query("INSERT INTO ". $nuked['prefix'] ."_action  (`date`, `pseudo`, `action`)  VALUES ('".$acdate."', '".$user[0]."', '".$texteaction."')");
-	//Fin action
-	echo "<div class=\"notification success png_bg\">\n"
-	. "<div>\n"
-	. "" . _MESSDELETE . "\n"
-	. "</div>\n"
-	. "</div>\n";
-	redirect("index.php?file=Contact&page=admin", 2);
-    }
+        global $nuked, $language, $user; ?>
+<div class="content-box"> 
+		<div class="content-box-header"><h3><?php echo _ADMINSUPPORT; ?></h3>
+        <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Contact.php" rel="modal">
+	<img style="border: 0;" src="help/help.gif" alt="" title="<?php echo _HELP; ?>" /></a>
+	</div></div>
+    <div class="tab-content" id="tab2"><?php 
+        if(is_nan($thread_ID))
+        {
+            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /><br /></div><?php
+        }
+        $thread = recupThread($thread_ID);
+        if(empty($thread["id"]))
+        {
+            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /><br /></div><?php
+        }
+        else { 
+            $sql = mysql_query("UPDATE  ". $nuked["prefix"] ."_support_threads SET  `closed` =  '1' WHERE id = '". mysql_real_escape_string($thread_ID) ."' ");
+            if(!$sql){
+            ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
+            }
+            else {
+        ?>
+<div class="notification success png_bg">
+	<div>
+	<?php echo _CLOSESUCCESS; ?>
+	</div>
+	</div>
+	<?php redirect("javascript:history.back()", 2); ?>
+    </div></div>
 
+
+        <?php     
+    }
+    }
+    }
+    
+    
+    function open($thread_ID)
+    {
+        global $nuked, $language, $user; ?>
+<div class="content-box"> 
+		<div class="content-box-header"><h3><?php echo _ADMINSUPPORT; ?></h3>
+        <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Contact.php" rel="modal">
+	<img style="border: 0;" src="help/help.gif" alt="" title="<?php echo _HELP; ?>" /></a>
+	</div></div>
+    <div class="tab-content" id="tab2"><?php 
+        if(is_nan($thread_ID))
+        {
+            ?> <div style="text-align:center;"><h3><?php echo _TICKETDONTEXIST; ?></h3>
+            <br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /><br /></div><?php
+        }
+        $thread = recupThread($thread_ID);
+        if(empty($thread["id"]))
+        {
+            ?> <div style="text-align:center;"><h3><?php echo _TICKETDONTEXIST; ?></h3>
+            <br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /><br /></div><?php
+        }
+        else { 
+            $sql = mysql_query("UPDATE  ". $nuked["prefix"] ."_support_threads SET  `closed` =  '0' WHERE id = '". mysql_real_escape_string($thread_ID) ."' ");
+            if(!$sql){
+            ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
+            }
+            else if($new == 0) {
+        ?>
+<div class="notification success png_bg">
+	<div>
+	<?php echo _OPENSUCCESS; ?>
+	</div>
+	</div>
+	<?php redirect("javascript:history.back()", 2); ?>
+    </div></div>
+
+        <?php     
+    }
+    }
+    }
+    
 
     function main_pref()
     {
@@ -304,6 +394,16 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 	case "listClose":
             listClose();
 	break;
+    
+    case"reply":
+            reply($_REQUEST["id"], $_REQUEST["corps"]);
+            break;
+        case"close":
+            close($_REQUEST["id"]);
+            break;
+        case"open":
+            open($_REQUEST["id"]);
+            break;
 
 	case "main_pref":
 	main_pref();
