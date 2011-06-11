@@ -29,6 +29,7 @@ else
 
 $ModName = basename(dirname(__FILE__));
 $level_access = nivo_mod($ModName);
+$level_admin = admin_mod($ModName);
 if($level_access == 0){$level_access = 1;}
 if ($lvlUser >= $level_access && $level_access > -1)
 {
@@ -42,7 +43,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
         ?>
 <div style="text-align:center;">
     <h2><?php echo _SUPPORT; ?></h2>
-    <h3><?php echo _LISTTICKETS; ?></h3>
+    <h3><?php echo _LISTTICKETS." ". _OUVERTS; ?> - <a href="index.php?file=Support&amp;op=listClose"><?php echo _LISTTICKETS." ". _FERMES; ?></a></h3>
 </div>
 <table width="100%" border="1" cellspacing="1" cellpadding="2">
     <tbody>
@@ -55,17 +56,21 @@ if ($lvlUser >= $level_access && $level_access > -1)
         </tr>
         <?php if($lvlUser == 0){ ?>
         <tr>
-            <td colspan="5">Vous n'&ecirc;tes pas enregistr&eacute;, impossible de suivre des sujets</td>
+            <td colspan="5"><?php echo _VIEWUNREG; ?></td>
         </tr>
             <?php }
-        else {     
+        else if(mysql_num_rows($tickets) == 0){ ?>
+          <tr>
+            <td colspan="5"><?php echo _NOTICKETS; ?></td>
+        </tr> <?php }
+        else { 
             while($t = mysql_fetch_assoc($tickets)){ ?>
         <tr>
             <td><?php echo $t["id"]; ?></td>
             <td><?php echo $t["titre"]; ?></td>
             <td><?php $cat = getCatName($t["cat_id"]); echo $cat["nom"]; ?></td>
             <td><?php echo strftime("%x %H:%M", $t["date"]); ?></td>
-            <td><a href="index.php?file=Support&amp;op=view&amp;id=<?php echo $t["id"]; ?>"><?php echo _CONSULTREPLY; ?></a> - <?php echo _CLOSE; ?></td>
+            <td><a href="index.php?file=Support&amp;op=view&amp;id=<?php echo $t["id"]; ?>"><?php echo _CONSULT.'/'._REPLY; ?></a> - <a href="index.php?file=Support&amp;op=close&amp;id=<?php echo $t["id"]; ?>"><?php echo _CLOSE; ?></a></td>
         </tr>
         <?php  
             }
@@ -89,6 +94,55 @@ if ($lvlUser >= $level_access && $level_access > -1)
         <tr><td><textarea class="editorsimpla" id="ns_corps" name="corps" cols="60" rows="12"></textarea></td></tr>
         <tr><td><b><?php echo _NOTIFYME; ?> : </b>&nbsp;<input type="checkbox" name="notify" id="notify" checked="checked" /></td></tr>
 	<tr><td align="center"><br /><input type="submit" class="bouton" value="<?php echo _SEND; ?>" /></td></tr></table></form><br />
+ <?php   }
+ 
+    function listClose()
+    {
+        global $lvlUser, $nuked, $user;
+        if($lvlUser)
+        {
+            $tickets = recupTicketsClose();
+        }
+        ?>
+<div style="text-align:center;">
+    <h2><?php echo _SUPPORT; ?></h2>
+    <h3><a href="index.php?file=Support"><?php echo _LISTTICKETS." ". _OUVERTS; ?></a> - <?php echo _LISTTICKETS." ". _FERMES; ?></h3>
+</div>
+<table width="100%" border="1" cellspacing="1" cellpadding="2">
+    <tbody>
+        <tr>
+            <td><b>ID</b></td>
+            <td><b>Sujet</b></td>
+            <td><b>Cat&eacute;gorie</b></td>
+            <td><b>Date</b></td>
+            <td><b>Op&eacute;rations</b></td>
+        </tr>
+        <?php if($lvlUser == 0){ ?>
+        <tr>
+            <td colspan="5"><?php echo _VIEWUNREG; ?></td>
+        </tr>
+            <?php }
+        else if(mysql_num_rows($tickets) == 0){ ?>
+          <tr>
+            <td colspan="5"><?php echo _NOTICKETS; ?></td>
+        </tr> <?php }
+        else {     
+            while($t = mysql_fetch_assoc($tickets)){ ?>
+        <tr>
+            <td><?php echo $t["id"]; ?></td>
+            <td><?php echo $t["titre"]; ?></td>
+            <td><?php $cat = getCatName($t["cat_id"]); echo $cat["nom"]; ?></td>
+            <td><?php echo strftime("%x %H:%M", $t["date"]); ?></td>
+            <td><a href="index.php?file=Support&amp;op=view&amp;id=<?php echo $t["id"]; ?>"><?php echo _CONSULT; ?></a> - <a href="index.php?file=Support&amp;op=open&amp;id=<?php echo $t["id"]; ?>"><?php echo _OPEN; ?></a></td>
+        </tr>
+        <?php  
+            }
+        }
+?>
+        <tr></tr>
+    </tbody>
+</table>
+
  <?php   }
     
     function viewThread($thread_ID)
@@ -125,15 +179,16 @@ if ($lvlUser >= $level_access && $level_access > -1)
         } ?>
 
 <br />
+<?php if($thread["closed"] == 0) { ?>
 <form method="post" action="index.php?file=Support&amp;op=reply">
     <table style="margin-left: auto;margin-right: auto;text-align: left;" cellspacing="1" cellpadding="3" border="0">
 	<tr><td align="center"><h3><b><?php echo _REPLY; ?></b></h3><input type="text" style="display:none;" name="id" id="id" size="5" value="<?php echo $thread_ID; ?>" /></td></tr>
 	<tr><td><textarea class="editorsimpla" id="ns_corps" name="corps" cols="60" rows="12"></textarea></td></tr>
-	<tr><td align="center"><br /><input type="submit" class="bouton" value="<?php echo _SEND; ?>"/></td></tr>
+	<tr><td align="center"><input type="submit" class="bouton" value="<?php echo _SEND; ?>"/></td></tr>
     </table>
-</form>
-<br />
-        <?php     
+</form><div style="text-align:center;"><a href="index.php?file=Support&amp;op=close&amp;id=<?php echo $thread["id"]; ?>">[ <?php echo _CLOSE." "._THISTICKET; ?> ]</a><br /></div><?php } else { ?>
+
+<div style="text-align:center;"><a href="index.php?file=Support&amp;op=open&amp;id=<?php echo $thread["id"]; ?>">[ <?php echo _OPEN." "._THISTICKET; ?> ]</a><br /></div><?php } 
     }
     }
 
@@ -171,6 +226,86 @@ if ($lvlUser >= $level_access && $level_access > -1)
     <h3><?php echo $thread["titre"]; ?></h3>
     <br /><br />
     <?php echo _REPLYSUCCESS; ?>
+    <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br />
+</div>
+
+        <?php     
+    }
+    }
+    }
+    
+    
+    function close($thread_ID)
+    {
+        global $lvlUser, $nuked, $user;
+        if(is_nan($thread_ID))
+        {
+            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
+        }
+        $thread = recupThread($thread_ID);
+        if(empty($thread["id"]))
+        {
+            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
+        }
+        else if($lvlUser == 0 || $thread["auteur_id"] != $user[0])
+        {
+            ?> <div style="text-align:center;"><h2><?php echo _PASPROPRIOTICKET; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
+        }
+        else { 
+            $sql = mysql_query("UPDATE  ". $nuked["prefix"] ."_support_threads SET  `closed` =  '1' WHERE id = '". mysql_real_escape_string($thread_ID) ."' ");
+            if(!$sql){
+            ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
+            }
+            else if($new == 0) {
+        ?>
+<div style="text-align:center;">
+    <h2><?php echo _SUPPORT; ?></h2>
+    <h3><?php echo $thread["titre"]; ?></h3>
+    <br /><br />
+    <?php echo _CLOSESUCCESS; ?>
+    <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br />
+</div>
+
+        <?php     
+    }
+    }
+    }
+    
+    
+    function open($thread_ID)
+    {
+        global $lvlUser, $nuked, $user;
+        if(is_nan($thread_ID))
+        {
+            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
+        }
+        $thread = recupThread($thread_ID);
+        if(empty($thread["id"]))
+        {
+            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
+        }
+        else if($lvlUser == 0 || $thread["auteur_id"] != $user[0])
+        {
+            ?> <div style="text-align:center;"><h2><?php echo _PASPROPRIOTICKET; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
+        }
+        else { 
+            $sql = mysql_query("UPDATE  ". $nuked["prefix"] ."_support_threads SET  `closed` =  '0' WHERE id = '". mysql_real_escape_string($thread_ID) ."' ");
+            if(!$sql){
+            ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
+            }
+            else if($new == 0) {
+        ?>
+<div style="text-align:center;">
+    <h2><?php echo _SUPPORT; ?></h2>
+    <h3><?php echo $thread["titre"]; ?></h3>
+    <br /><br />
+    <?php echo _OPENSUCCESS; ?>
     <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br />
 </div>
 
@@ -220,6 +355,12 @@ if ($lvlUser >= $level_access && $level_access > -1)
     {
 	global $nuked, $user;
     	$sql = mysql_query("SELECT * FROM ". $nuked["prefix"] ."_support_threads WHERE auteur_id = '" . $user[0] . "' AND closed = 0 ORDER BY id DESC");
+        return $sql;
+    }
+    function recupTicketsClose()
+    {
+	global $nuked, $user;
+    	$sql = mysql_query("SELECT * FROM ". $nuked["prefix"] ."_support_threads WHERE auteur_id = '" . $user[0] . "' AND closed = 1 ORDER BY id DESC");
         return $sql;
     }
     function recupThreadMessages($thread_id)
@@ -306,12 +447,21 @@ if ($lvlUser >= $level_access && $level_access > -1)
 	case"index":
 	index();
 	break;
+	case"listClose":
+	listClose();
+	break;
     
         case"view":
             viewThread($_REQUEST["id"]);
             break;
         case"reply":
             reply($_REQUEST["id"], $_REQUEST["corps"]);
+            break;
+        case"close":
+            close($_REQUEST["id"]);
+            break;
+        case"open":
+            open($_REQUEST["id"]);
             break;
         case"post":
             if(isset($_POST['notify']) AND ($_POST['notify'] == 'on')){$notify = 1;} else { $notify = 0; }
@@ -337,6 +487,8 @@ else
     echo "<br /><br /><div style=\"text-align: center;\">" . _NOENTRANCE . "<br /><br /><a href=\"javascript:history.back()\"><b>" . _BACK . "</b></a><br /><br /></div>";
 } 
 
+
+echo "<br />";
 closetable();
 
 ?>
