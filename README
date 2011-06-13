@@ -8,14 +8,10 @@ Réalisé par Rbeuque74 pour nkhelp.fr
 *Fermeture/Ouverture d'un ticket
 *Gère "ce ticket n'existe pas"
 *Gère l'admin
+*Fichiers de config php
 
 
 ## A FAIRE ##
 *Gérer les langues
 *Interdire le retrait de toutes les catégories
-*Fichiers de config php
 *Modif couleurs via admin ?
-
-
-## Known Issues ##
-*Impossible d'envoyer un message contenant le caractère ' 
