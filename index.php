@@ -104,7 +104,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
     
     function viewThread($thread_ID)
     {
-        global $lvlUser, $nuked, $user, $color_content2, $color_content1, $color_top;
+        global $lvlUser, $nuked, $user, $color_content2, $color_content1, $color_top, $color_admin;
         $thread = recupThread($thread_ID);
         if(empty($thread["id"]))
         {
@@ -283,7 +283,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
             <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php $new = 0;
         }
         else { 
-            $requete = "INSERT INTO ". $nuked["prefix"] ."_support_messages (texte, date, auteur, auteur_id, auteur_ip, thread_id, admin)  VALUES ('". secu_html(html_entity_decode($corps, ENT_QUOTES)) ."', '". time() ."', '". mysql_real_escape_string($user[2]) ."', '". mysql_real_escape_string($user[0]) ."', '". mysql_real_escape_string($user[3]) ."', '". mysql_real_escape_string($thread_ID) ."', '0')";
+            $requete = "INSERT INTO ". $nuked["prefix"] ."_support_messages (texte, date, auteur, auteur_id, auteur_ip, thread_id, admin)  VALUES ('". mysql_real_escape_string(secu_html(html_entity_decode($corps, ENT_QUOTES))) ."', '". time() ."', '". mysql_real_escape_string($user[2]) ."', '". mysql_real_escape_string($user[0]) ."', '". mysql_real_escape_string($user[3]) ."', '". mysql_real_escape_string($thread_ID) ."', '0')";
             $sql2 = mysql_query($requete);
             if(!$sql2){
             ?> <div style="text-align:center;"><h2><?php echo _ERREUR."   ".  mysql_errno($sql2)." : ".  mysql_error($sql2); ?></h2></div><?php

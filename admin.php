@@ -155,9 +155,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
             <br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
         }
         else { 
-            $sql = mysql_query("INSERT INTO ". $nuked["prefix"] ."_support_messages (texte, date, auteur, auteur_id, auteur_ip, thread_id, admin) VALUES 
-                ('". secu_html(html_entity_decode($corps, ENT_QUOTES)) ."', '". time() ."', '". mysql_real_escape_string($user[2]) ."', 
-                    '". mysql_real_escape_string($user[0]) ."', '". mysql_real_escape_string($user[3]) ."', '". mysql_real_escape_string($thread_ID) ."', '1') ");
+            $sql = mysql_query("INSERT INTO ". $nuked["prefix"] ."_support_messages (texte, date, auteur, auteur_id, auteur_ip, thread_id, admin) VALUES ('". mysql_real_escape_string(secu_html(html_entity_decode($corps, ENT_QUOTES))) ."', '". time() ."', '". mysql_real_escape_string($user[2]) ."', '". mysql_real_escape_string($user[0]) ."', '". mysql_real_escape_string($user[3]) ."', '". mysql_real_escape_string($thread_ID) ."', '1') ");
             if(!$sql){
             ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
             }
