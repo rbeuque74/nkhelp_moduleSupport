@@ -36,9 +36,13 @@ if ($lvlUser >= $level_access && $level_access > -1)
     function index($closed=0)
     {
         global $lvlUser, $nuked, $user, $bgcolor1, $bgcolor2, $bgcolor3;
-        if($lvlUser)
+        if($lvlUser AND $closed == 0)
         {
             $tickets = recupTickets(); 
+        }
+        else if($closed == 1)
+        {
+            $tickets = recupTicketsClose(); 
         }
         ?>
 <div style="text-align:center;">
