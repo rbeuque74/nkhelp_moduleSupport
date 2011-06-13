@@ -49,27 +49,27 @@ if ($lvlUser >= $level_access && $level_access > -1)
     <h2><?php echo _SUPPORT; ?></h2>
     <h3><?php if($closed){ ?><a href="index.php?file=Support"><?php } echo _LISTTICKETS." ". _OUVERTS; if($closed){ ?></a> <?php } ?> - <?php if(!$closed){?><a href="index.php?file=Support&amp;op=index&amp;tickets=close"><?php } echo _LISTTICKETS." ". _FERMES; if(!$closed){ ?></a><?php } ?></h3>
 </div>
-<table width="100%" border="1" cellspacing="1" cellpadding="2">
+<table style="margin-left:auto; margin-right:auto; text-align:left; background:<?php echo $bgcolor2; ?>; border:1px solid <?php echo $bgcolor3; ?>; width:98%;" cellspacing="1" cellpadding="2">
     <tbody>
-        <tr>
+        <tr style="background: <?php echo $bgcolor3; ?>">
             <td><b>#</b></td>
             <td><b><?php echo _SUJET; ?></b></td>
             <td><b><?php echo _CAT; ?></b></td>
-            <td><b><?php echo _DATE; ?></b></td>
+            <td style="width: 20%;"><b><?php echo _DATE; ?></b></td>
             <td><b><?php echo _OPERATIONS; ?></b></td>
         </tr>
         <?php if($lvlUser == 0){ ?>
         <tr>
-            <td colspan="5"><?php echo _VIEWUNREG; ?></td>
+            <td colspan="5" style="text-align:center;"><?php echo _VIEWUNREG; ?></td>
         </tr>
             <?php }
         else if(mysql_num_rows($tickets) == 0){ ?>
-          <tr>
-            <td colspan="5"><?php echo _NOTICKETS; ?></td>
+          <tr style="background: <?php echo $bgcolor2; ?>">
+            <td colspan="5" style="text-align:center;"><?php echo _NOTICKETS; ?></td>
         </tr> <?php }
-        else { 
+        else { $counter=0;
             while($t = mysql_fetch_assoc($tickets)){ ?>
-        <tr>
+        <tr <?php if($counter%2 ==0){ ?>style="background: <?php echo $bgcolor2; ?>" <?php } else { ?>  style="background: <?php echo $bgcolor1; ?>" <?php } ?> >
             <td><?php echo $t["id"]; ?></td>
             <td><?php echo $t["titre"]; ?></td>
             <td><?php $cat = getCatName($t["cat_id"]); echo $cat["nom"]; ?></td>
@@ -77,7 +77,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
             <td><a href="index.php?file=Support&amp;op=view&amp;id=<?php echo $t["id"]; ?>"><?php echo _CONSULT; if(!$closed) { echo '/'._REPLY;} ?></a> - <a href="index.php?file=Support&amp;op=<?php if(!$closed){echo "close";} else {echo "open";}?>&amp;id=<?php echo $t["id"]; ?>"><?php if(!$closed){echo _CLOSE;} else {echo _OPEN;}?></a></td>
         </tr>
         <?php  
-            }
+           $counter++; }
         }
 ?>
         <tr></tr>
@@ -103,7 +103,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
     
     function viewThread($thread_ID)
     {
-        global $lvlUser, $nuked, $user;
+        global $lvlUser, $nuked, $user, $bgcolor1, $bgcolor2, $bgcolor3;
         $thread = recupThread($thread_ID);
         if(empty($thread["id"]))
         {
@@ -122,17 +122,26 @@ if ($lvlUser >= $level_access && $level_access > -1)
         ?>
 <div style="text-align:center;">
     <h2><?php echo _SUPPORT; ?></h2>
-    <a href="index.php?file=Support<?php if($thread["closed"] == 1) { echo "&amp;op=index&amp;tickets=close"; } ?>">[ <?php echo _LISTTICKETS; ?> ]</a>
+    <a href="index.php?file=Support<?php if($thread["closed"] == 1) { echo "&amp;op=index&amp;tickets=close"; } ?>">[ <?php echo _LISTTICKETS; ?> ]</a> - <a href="index.php?file=Support&amp;op=<?php if($thread["closed"] == 0){echo "close";} else {echo "open";}?>&amp;id=<?php echo $thread["id"]; ?>">[ <?php if($thread["closed"] == 0){echo _CLOSE;} else {echo _OPEN;} echo " "._THISTICKET; ?> ]</a>
     <h3><?php echo $thread["titre"]; ?></h3>
 </div>
-        <?php while($m = mysql_fetch_assoc($messages)){ if($m["admin"] == 0){ ?>
-<div style="border:1px solid black; width:100%;"><?php echo _YOUWROTE . strftime("%x %H:%M", $m["date"]) ?></div>
-<div style="border:1px solid black; width:100%;"><?php echo $m["texte"] ?></div>
-            <?php } else { ?>
-<div style="border:1px solid black; width:100%; background-color: yellow;"><?php echo $m["auteur"] . _WROTE . strftime("%x %H:%M", $m["date"]) ?></div>
-<div style="border:1px solid black; width:100%; background-color: yellow;"><?php echo $m["texte"] ?></div>
-            <?php }
-        } ?>
+        <div style="width:98%; margin-left:auto; margin-right:auto;">
+        <?php $counter=0; while($m = mysql_fetch_assoc($messages)){
+            $sql = mysql_query("SELECT avatar FROM ". $nuked["prefix"] ."_users WHERE id = '".mysql_real_escape_string($m["auteur_id"])."' LIMIT 0,1");
+            $user_avatar = mysql_fetch_assoc($sql);
+            ?>
+
+            <div id="message" style="width:100%; padding:1px; margin-bottom:3px; text-align:left; border:1px solid <?php echo $bgcolor3; ?>; <?php if($counter != 0){ ?> border-top:0px; <?php } ?> background : <?php if($m["admin"] == 1){ echo "orange"; } else if($counter%2 ==0){echo $bgcolor2;} else {echo $bgcolor1;} ?>; ">
+                <div style="float:left; width:45px; height:45px; padding-right:3px; "><img src="<?php echo checkimg($user_avatar["avatar"]); ?>" width="45" height="45" alt="" /></div>
+                <div>
+                    <div style="left:4px; background: <?php echo $bgcolor3; ?>"><?php if($m["admin"] == 0){ echo _YOUWROTE;} else { echo $m["auteur"] . _WROTE;} echo strftime("%x %H:%M", $m["date"]) ?></div>
+                    <div style="padding-left:4px;"><?php echo $m["texte"] ?></div>
+                </div>
+                <div style="clear:both;"></div>
+                
+            </div>
+            <?php $counter++;
+        } ?></div>
 
 <br />
 <?php if($thread["closed"] == 0) { ?>
@@ -142,9 +151,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
 	<tr><td><textarea class="editorsimpla" id="ns_corps" name="corps" cols="60" rows="12"></textarea></td></tr>
 	<tr><td align="center"><input type="submit" class="bouton" value="<?php echo _SEND; ?>"/></td></tr>
     </table>
-</form><div style="text-align:center;"><a href="index.php?file=Support&amp;op=close&amp;id=<?php echo $thread["id"]; ?>">[ <?php echo _CLOSE." "._THISTICKET; ?> ]</a><br /></div><?php } else { ?>
-
-<div style="text-align:center;"><a href="index.php?file=Support&amp;op=open&amp;id=<?php echo $thread["id"]; ?>">[ <?php echo _OPEN." "._THISTICKET; ?> ]</a><br /></div><?php } 
+</form><?php } 
     }
     }
 
