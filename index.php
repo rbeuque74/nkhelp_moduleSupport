@@ -33,9 +33,9 @@ $level_admin = admin_mod($ModName);
 if($level_access == 0){$level_access = 1;}
 if ($lvlUser >= $level_access && $level_access > -1)
 {
-    function index()
+    function index($closed=0)
     {
-        global $lvlUser, $nuked, $user;
+        global $lvlUser, $nuked, $user, $bgcolor1, $bgcolor2, $bgcolor3;
         if($lvlUser)
         {
             $tickets = recupTickets(); 
@@ -43,7 +43,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
         ?>
 <div style="text-align:center;">
     <h2><?php echo _SUPPORT; ?></h2>
-    <h3><?php echo _LISTTICKETS." ". _OUVERTS; ?> - <a href="index.php?file=Support&amp;op=listClose"><?php echo _LISTTICKETS." ". _FERMES; ?></a></h3>
+    <h3><?php if($closed){ ?><a href="index.php?file=Support"><?php } echo _LISTTICKETS." ". _OUVERTS; if($closed){ ?></a> <?php } ?> - <?php if(!$closed){?><a href="index.php?file=Support&amp;op=index&amp;tickets=close"><?php } echo _LISTTICKETS." ". _FERMES; if(!$closed){ ?></a><?php } ?></h3>
 </div>
 <table width="100%" border="1" cellspacing="1" cellpadding="2">
     <tbody>
@@ -70,7 +70,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
             <td><?php echo $t["titre"]; ?></td>
             <td><?php $cat = getCatName($t["cat_id"]); echo $cat["nom"]; ?></td>
             <td><?php echo strftime("%x %H:%M", $t["date"]); ?></td>
-            <td><a href="index.php?file=Support&amp;op=view&amp;id=<?php echo $t["id"]; ?>"><?php echo _CONSULT.'/'._REPLY; ?></a> - <a href="index.php?file=Support&amp;op=close&amp;id=<?php echo $t["id"]; ?>"><?php echo _CLOSE; ?></a></td>
+            <td><a href="index.php?file=Support&amp;op=view&amp;id=<?php echo $t["id"]; ?>"><?php echo _CONSULT; if(!$closed) { echo '/'._REPLY;} ?></a> - <a href="index.php?file=Support&amp;op=<?php if(!$closed){echo "close";} else {echo "open";}?>&amp;id=<?php echo $t["id"]; ?>"><?php if(!$closed){echo _CLOSE;} else {echo _OPEN;}?></a></td>
         </tr>
         <?php  
             }
@@ -80,7 +80,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
     </tbody>
 </table>
 
-
+<?php if(!$closed){ ?>
 <br /><br /><br /><form method="post" action="index.php?file=Support&amp;op=post">
 	<table style="margin-left: auto;margin-right: auto;text-align: left;" cellspacing="1" cellpadding="3" border="0">
 	<tr><td align="center"><h3><?php echo _ADDTICKET; ?></h3></td></tr>
@@ -94,56 +94,8 @@ if ($lvlUser >= $level_access && $level_access > -1)
         <tr><td><textarea class="editorsimpla" id="ns_corps" name="corps" cols="60" rows="12"></textarea></td></tr>
         <tr><td><b><?php echo _NOTIFYME; ?> : </b>&nbsp;<input type="checkbox" name="notify" id="notify" checked="checked" /></td></tr>
 	<tr><td align="center"><br /><input type="submit" class="bouton" value="<?php echo _SEND; ?>" /></td></tr></table></form><br />
- <?php   }
- 
-    function listClose()
-    {
-        global $lvlUser, $nuked, $user;
-        if($lvlUser)
-        {
-            $tickets = recupTicketsClose();
-        }
-        ?>
-<div style="text-align:center;">
-    <h2><?php echo _SUPPORT; ?></h2>
-    <h3><a href="index.php?file=Support"><?php echo _LISTTICKETS." ". _OUVERTS; ?></a> - <?php echo _LISTTICKETS." ". _FERMES; ?></h3>
-</div>
-<table width="100%" border="1" cellspacing="1" cellpadding="2">
-    <tbody>
-        <tr>
-            <td><b>ID</b></td>
-            <td><b>Sujet</b></td>
-            <td><b>Cat&eacute;gorie</b></td>
-            <td><b>Date</b></td>
-            <td><b>Op&eacute;rations</b></td>
-        </tr>
-        <?php if($lvlUser == 0){ ?>
-        <tr>
-            <td colspan="5"><?php echo _VIEWUNREG; ?></td>
-        </tr>
-            <?php }
-        else if(mysql_num_rows($tickets) == 0){ ?>
-          <tr>
-            <td colspan="5"><?php echo _NOTICKETS; ?></td>
-        </tr> <?php }
-        else {     
-            while($t = mysql_fetch_assoc($tickets)){ ?>
-        <tr>
-            <td><?php echo $t["id"]; ?></td>
-            <td><?php echo $t["titre"]; ?></td>
-            <td><?php $cat = getCatName($t["cat_id"]); echo $cat["nom"]; ?></td>
-            <td><?php echo strftime("%x %H:%M", $t["date"]); ?></td>
-            <td><a href="index.php?file=Support&amp;op=view&amp;id=<?php echo $t["id"]; ?>"><?php echo _CONSULT; ?></a> - <a href="index.php?file=Support&amp;op=open&amp;id=<?php echo $t["id"]; ?>"><?php echo _OPEN; ?></a></td>
-        </tr>
-        <?php  
-            }
-        }
-?>
-        <tr></tr>
-    </tbody>
-</table>
+ <?php   }}
 
- <?php   }
     
     function viewThread($thread_ID)
     {
@@ -445,10 +397,14 @@ if ($lvlUser >= $level_access && $level_access > -1)
 	break;
 
 	case"index":
-	index();
-	break;
-	case"listClose":
-	listClose();
+	
+            if(isset($_REQUEST["tickets"]) AND $_REQUEST["tickets"] == "close")
+            {
+                index(1);
+            }
+            else {
+                index();
+            }
 	break;
     
         case"view":
