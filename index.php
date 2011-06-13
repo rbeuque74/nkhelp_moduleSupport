@@ -344,59 +344,9 @@ if ($lvlUser >= $level_access && $level_access > -1)
         $sql = mysql_fetch_assoc($sql);
         return $sql;
     }
-    function sendmail($nom, $mail, $sujet, $corps)
-    {
-	global $nuked, $user_ip, $nuked;
 
-    	$time = time();
-    	$date = strftime("%x %H:%M", $time);
-    	$contact_flood = $nuked['contact_flood'] * 60;
-
-    	$sql = mysql_query("SELECT date FROM " . CONTACT_TABLE . " WHERE ip = '" . $user_ip . "' ORDER BY date DESC LIMIT 0, 1");
-    	$count = mysql_num_rows($sql);
-    	list($flood_date) = mysql_fetch_array($sql);
-    	$anti_flood = $flood_date + $contact_flood;
-
-    	if ($count > 0 && $time < $anti_flood)
-    	{
-	    echo "<br /><br /><div style=\"text-align: center;\">" . _FLOODCMAIL . "</big></div><br /><br />";
-	    redirect("index.php", 3);
-    	}
-    	else
-    	{
-	    $nom = trim($nom);
-	    $mail = trim($mail);
-	    $sujet = trim($sujet);
-
-	    $subjet = $sujet . ", " . $date;
-	    $corp = $corps . "\r\n\r\n\r\n" . $nuked['name'] . " - " . $nuked['slogan'];
-	    $from = "From: " . $nom . " <" . $mail . ">\r\nReply-To: " . $mail . "\r\n";
-	    $from.= "Content-Type: text/html\r\n\r\n";
-
-	    if ($nuked['contact_mail'] != "") $email = $nuked['contact_mail'];
-	    else $email = $nuked['mail'];	
-		$corp = secu_html(html_entity_decode($corp));
-		
-	    mail($email, $subjet, $corp, $from);
-
-	    $name = htmlentities($nom, ENT_QUOTES);
-	    $email = htmlentities($mail, ENT_QUOTES);
-	    $subject = htmlentities($sujet, ENT_QUOTES);
-	    $text = secu_html(html_entity_decode($corps, ENT_QUOTES));
-
-	    $add = mysql_query("INSERT INTO " . CONTACT_TABLE . " ( `id` , `titre` , `message` , `email` , `nom` , `ip` , `date` ) 
-                VALUES ( '' , '" . $subject . "' , '" . $text . "' , '" . $email . "' , '" . $name . "' , '" . $user_ip . "' , '" . $time . "' )");
-		$upd = mysql_query("INSERT INTO ". $nuked['prefix'] ."_notification  (`date` , `type` , `texte`)  VALUES ('".$time."', '1', '"._NOTCON.": [<a href=\"index.php?file=Contact&page=admin\">lien</a>].')");
-	    echo "<br /><br /><div style=\"text-align: center;\">" . _SENDCMAIL . "</div><br /><br />";
-	    redirect("index.php", 3);
-    	}
-    }
 
     switch($_REQUEST['op']){
-
-	case"sendmail":
-	sendmail($_REQUEST['nom'], $_REQUEST['mail'], $_REQUEST['sujet'], $_REQUEST['corps']);
-	break;
 
 	case"index":
 	

@@ -159,7 +159,13 @@ if ($visiteur >= $level_admin && $level_admin > -1)
             if(!$sql){
             ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
             }
-            else if($new == 0) {
+            else {         
+                
+                if($thread["notify"]){
+                    $sql_user_mail = mysql_query("SELECT * FROM ". USER_TABLE ." WHERE id = '$user[0]' LIMIT 0,1 ");
+                    $sql_user_mail = mysql_fetch_assoc($sql_user_mail);
+                    sendmail(secu_html(html_entity_decode($user[2], ENT_QUOTES)), secu_html(html_entity_decode($thread["titre"], ENT_QUOTES)), $thread_ID, secu_html(html_entity_decode($sql_user_mail["mail"], ENT_QUOTES)));
+                }
         ?>
 <div class="notification success png_bg">
 	<div>
@@ -340,6 +346,37 @@ if ($visiteur >= $level_admin && $level_admin > -1)
     	$sql = mysql_query("SELECT nom FROM ". $nuked["prefix"] ."_support_cat WHERE id = '" . $catID . "' ORDER BY id DESC LIMIT 0,1");
         $sql = mysql_fetch_assoc($sql);
         return $sql;
+    }
+    
+    function sendmail($auteur, $sujet, $id, $mail)
+    {
+	global $nuked, $user_ip, $nuked;
+
+    	$time = time();
+    	$date = strftime("%x %H:%M", $time);
+    	$url_site = mysql_query("SELECT name, value FROM ". $nuked["prefix"] ."_config WHERE name == 'url' LIMIT 0,1");
+        $url_site = mysql_fetch_assoc($url_site);
+        
+    	
+        $auteur = trim($auteur);
+        $mail = trim($mail);
+        $sujet = trim($sujet);
+        
+        $corps = "<p>Bonjour,<br />vous avez re&ccedil;u une r&eacute;ponse &agrave; votre ticket de support \"<b>$sujet</b>\" de la part de $auteur.<br /><br />Vous pouvez consulter la r&eacute;ponse &agrave; l'adresse : <a href=\"".$url_site["value"]."index.php?file=Support&amp;op=view&amp;id=$id\">".$url_site["value"]."index.php?file=Support&amp;op=view&amp;id=$id</p>";
+
+
+        $subjet = $nuked['name']." - Notification de r&eacute;ponse au ticket : ".$sujet;
+        $corp = $corps . "\r\n\r\n\r\n" . $nuked['name'] . " - " . $nuked['slogan'];
+        $from = "From: " . $nuked["name"] . " - Notifications  <" . $nuked['mail'] . ">\r\nReply-To: " . $nuked['mail'] . "\r\n";
+        $from.= "Content-Type: text/html\r\n\r\n";
+
+        $corp = secu_html(html_entity_decode($corp));
+
+        mail($mail, $subjet, $corp, $from);
+
+        echo "<br /><br /><div style=\"text-align: center;\">" . _SENDCMAIL . "</div><br /><br />";
+        redirect("index.php?file=Support&amp;page=admin", 3);
+    	
     }
     
     
