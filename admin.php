@@ -30,17 +30,17 @@ $ModName = basename(dirname(__FILE__));
 $level_admin = admin_mod($ModName);
 if ($visiteur >= $level_admin && $level_admin > -1)
 {
-    function main()
+    function main($closed = 0)
     {
 	global $nuked, $language; ?>
 
 <div class="content-box"> 
 		<div class="content-box-header"><h3><?php echo _ADMINSUPPORT; ?></h3>
-        <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Contact.php" rel="modal">
+        <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Support.php" rel="modal">
 	<img style="border: 0;" src="help/help.gif" alt="" title="<?php echo _HELP; ?>" /></a>
 	</div></div>
-	<div class="tab-content" id="tab2"><div style="text-align: center;"><?php echo _LISTTICKETS." ". _OUVERTS; ?> <b> | 
-	<a href="index.php?file=Support&amp;page=admin&amp;op=listClose"><?php echo _LISTTICKETS." ". _FERMES; ?></a> | 
+	<div class="tab-content" id="tab2"><div style="text-align: center;"><?php if($closed){ ?><b><a href="index.php?file=Support&amp;page=admin"><?php } echo _LISTTICKETS." ". _OUVERTS; if($closed){ ?></a><?php } else { ?><b><?php } ?> | 
+	<?php if(!$closed){ ?><a href="index.php?file=Support&amp;page=admin&amp;op=index&amp;tickets=close"><?php } else { ?></b><?php } echo _LISTTICKETS." ". _FERMES; if(!$closed){ ?></a><?php } else {?> <b><?php } ?> | 
 	<a href="index.php?file=Support&amp;page=admin&amp;op=main_pref"><?php echo _PREFS; ?></a></b></div><br />
 	<table style="margin-left: auto;margin-right: auto;text-align: left;" width="90%"  border="0" cellspacing="1" cellpadding="2">
 	<tr>
@@ -53,7 +53,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 	$cat = recupCat(); $nbTickets = 0;
         while($c = mysql_fetch_assoc($cat))
         {
-            $tickets = recupTicketsCat($c["id"]);
+            $tickets = ($closed == 0) ? recupTicketsCat($c["id"]) : recupTicketsCatClose($c["id"]);
             if(mysql_num_rows($tickets) == 0){
                 break;
             } ?>
@@ -65,7 +65,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 	<td style="width: 30%;"><?php echo $t["titre"]; ?></td>
 	<td style="width: 20%;"><?php echo $t["auteur"]; ?></td>
 	<td style="width: 20%;"><?php echo $t["date"]; ?></td>
-	<td style="width: 20%;"><a href="index.php?file=Support&amp;page=admin&amp;op=view&amp;id=<?php echo $t["id"]; ?>"><?php echo _CONSULT.'/'._REPLY; ?></a> - <a href="index.php?file=Support&amp;page=admin&amp;op=close&amp;id=<?php echo $t["id"]; ?>"><?php echo _CLOSE; ?></a></td></tr>
+	<td style="width: 20%;"><a href="index.php?file=Support&amp;page=admin&amp;op=view&amp;id=<?php echo $t["id"]; ?>"><?php echo _CONSULT; if($closed ==0){ echo '/'._REPLY;} ?></a> - <a href="index.php?file=Support&amp;page=admin&amp;op=<?php if($closed ==0){ echo "close";} else{ echo"open";}?>&amp;id=<?php echo $t["id"]; ?>"><?php if($closed ==0){ echo _CLOSE;} else{ echo _OPEN;}?></a></td></tr>
             <?php $nbTickets++; }
 
         }
@@ -76,56 +76,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 
 	</table><br /><div style="text-align: center;">[ <a href="index.php?file=Admin"><b><?php echo _BACK; ?></b></a> ]</div><br /></div></div>
     <?php }
-    
-    function listClose()
-    {
-        global $nuked, $language;  ?>
 
-<div class="content-box"> 
-		<div class="content-box-header"><h3><?php echo _ADMINSUPPORT; ?></h3>
-        <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Contact.php" rel="modal">
-	<img style="border: 0;" src="help/help.gif" alt="" title="<?php echo _HELP; ?>" /></a>
-	</div></div>
-	<div class="tab-content" id="tab2"><div style="text-align: center;"><b><a href="index.php?file=Support&amp;page=admin"><?php echo _LISTTICKETS." ". _OUVERTS; ?></a> | 
-	</b><?php echo _LISTTICKETS." ". _FERMES; ?><b> | 
-	<a href="index.php?file=Support&amp;page=admin&amp;op=main_pref"><?php echo _PREFS; ?></a></b></div><br />
-	<table style="margin-left: auto;margin-right: auto;text-align: left;" width="90%"  border="0" cellspacing="1" cellpadding="2">
-	<tr>
-	<td style="width: 10%;" align="center"><b>#</b></td>
-	<td style="width: 30%;" align="center"><b><?php echo _SUJET; ?></b></td>
-	<td style="width: 20%;" align="center"><b><?php echo _MEMBRE; ?></b></td>
-	<td style="width: 20%;" align="center"><b><?php echo _DATE; ?></b></td>
-	<td style="width: 20%;" align="center"><b><?php echo _OPERATIONS; ?></b></td></tr>
-        
-<?php
-	$cat = recupCat(); $nbTickets = 0;
-        while($c = mysql_fetch_assoc($cat))
-        {
-            $tickets = recupTicketsCatClose($c["id"]);
-            if(mysql_num_rows($tickets) == 0){
-                break;
-            } ?>
-            <tr><td colspan="5"><br /><h4><?php echo $c["nom"]; ?></h4></td></tr>
-            <?php while($t = mysql_fetch_assoc($tickets))
-            { $t["date"] = strftime("%d/%m/%Y %H:%M", $t["date"]); ?>
-                <tr>
-	<td style="width: 10%;"><?php echo $t["id"]; ?></td>
-	<td style="width: 30%;"><?php echo $t["titre"]; ?></td>
-	<td style="width: 20%;"><?php echo $t["auteur"]; ?></td>
-	<td style="width: 20%;"><?php echo $t["date"]; ?></td>
-        <td style="width: 20%;"><a href="index.php?file=Support&amp;page=admin&amp;op=view&amp;id=<?php echo $t["id"]; ?>"><?php echo _CONSULT; ?></a> - <a href="index.php?file=Support&amp;page=admin&amp;op=open&amp;id=<?php echo $t["id"]; ?>"><?php echo _OPEN; ?></a></td>
-        </tr>
-        <?php $nbTickets++; }
-
-        }
-        
-
-
-	if ($nbTickets == 0) echo "<tr><td align=\"center\" colspan=\"5\">" . _NOTICKETS . "</td></tr>\n"; ?>
-
-	</table><br /><div style="text-align: center;">[ <a href="index.php?file=Admin"><b><?php echo _BACK; ?></b></a> ]</div><br /></div></div>
-    <?php }
- 
     function viewThread($thread_ID)
     {
         global $nuked, $language;
@@ -391,8 +342,14 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 	viewThread($_REQUEST['id']);
 	break;
 
-	case "listClose":
-            listClose();
+	case "index":
+            if(isset($_REQUEST["tickets"]) AND $_REQUEST["tickets"] == "close")
+            {
+                main(1);
+            }
+            else {
+                main();
+            }
 	break;
     
     case"reply":
