@@ -47,7 +47,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
         ?>
 <div style="text-align:center;">
     <h2><?php echo _SUPPORT; ?></h2>
-    <h3><?php if($closed){ ?><a href="index.php?file=Support"><?php } echo _LISTTICKETS." ". _OUVERTS; if($closed){ ?></a> <?php } ?> - <?php if(!$closed){?><a href="index.php?file=Support&amp;op=index&amp;tickets=close"><?php } echo _LISTTICKETS." ". _FERMES; if(!$closed){ ?></a><?php } ?></h3>
+    <?php if($closed){ ?><a href="index.php?file=Support"><?php } else { echo "<b>";} echo "[ "._LISTTICKETS." ". _OUVERTS." ]"; if($closed){ ?></a> <?php }else { echo "</b>";} ?> - <?php if(!$closed){?><a href="index.php?file=Support&amp;op=index&amp;tickets=close"><?php }else { echo "<b>";} echo "[ "._LISTTICKETS." ". _FERMES." ]"; if(!$closed){ ?></a><?php }else { echo "</b>";} ?><br /><br />
 </div>
 <table style="margin-left:auto; margin-right:auto; text-align:left; background:<?php echo $bgcolor2; ?>; border:1px solid <?php echo $bgcolor3; ?>; width:98%;" cellspacing="1" cellpadding="2">
     <tbody>
@@ -122,7 +122,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
         ?>
 <div style="text-align:center;">
     <h2><?php echo _SUPPORT; ?></h2>
-    <a href="index.php?file=Support<?php if($thread["closed"] == 1) { echo "&amp;op=index&amp;tickets=close"; } ?>">[ <?php echo _LISTTICKETS; ?> ]</a> - <a href="index.php?file=Support&amp;op=<?php if($thread["closed"] == 0){echo "close";} else {echo "open";}?>&amp;id=<?php echo $thread["id"]; ?>">[ <?php if($thread["closed"] == 0){echo _CLOSE;} else {echo _OPEN;} echo " "._THISTICKET; ?> ]</a>
+    <a href="index.php?file=Support<?php if($thread["closed"] == 1) { echo "&amp;op=index&amp;tickets=close"; } ?>">[ <?php echo _RETURNLISTTICKETS; ?> ]</a> - <a href="index.php?file=Support&amp;op=<?php if($thread["closed"] == 0){echo "close";} else {echo "open";}?>&amp;id=<?php echo $thread["id"]; ?>">[ <?php if($thread["closed"] == 0){echo _CLOSE;} else {echo _OPEN;} echo " "._THISTICKET; ?> ]</a>
     <h3><?php echo $thread["titre"]; ?></h3>
 </div>
         <div style="width:98%; margin-left:auto; margin-right:auto;">
@@ -134,7 +134,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
             <div id="message" style="width:100%; padding:1px; margin-bottom:3px; text-align:left; border:1px solid <?php echo $bgcolor3; ?>; <?php if($counter != 0){ ?> border-top:0px; <?php } ?> background : <?php if($m["admin"] == 1){ echo "orange"; } else if($counter%2 ==0){echo $bgcolor2;} else {echo $bgcolor1;} ?>; ">
                 <div style="float:left; width:45px; height:45px; padding-right:3px; "><img src="<?php echo checkimg($user_avatar["avatar"]); ?>" width="45" height="45" alt="" /></div>
                 <div>
-                    <div style="left:4px; background: <?php echo $bgcolor3; ?>"><?php if($m["admin"] == 0){ echo _YOUWROTE;} else { echo $m["auteur"] . _WROTE;} echo strftime("%x %H:%M", $m["date"]) ?></div>
+                    <div style="left:4px; background: <?php echo $bgcolor3; ?>"><?php if($m["admin"] == 0){ echo _YOUWROTE;} else { echo $m["auteur"] . _WROTE;} echo strftime("%x &agrave; %H:%M", $m["date"]) ?></div>
                     <div style="padding-left:4px;"><?php echo $m["texte"] ?></div>
                 </div>
                 <div style="clear:both;"></div>
@@ -156,50 +156,8 @@ if ($lvlUser >= $level_access && $level_access > -1)
     }
 
     
-    function reply($thread_ID, $corps, $new=0)
-    {
-        global $lvlUser, $nuked, $user;
-        if(is_nan($thread_ID))
-        {
-            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
-            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
-        }
-        $thread = recupThread($thread_ID);
-        if(empty($thread["id"]))
-        {
-            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
-            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
-        }
-        else if($lvlUser == 0 || $thread["auteur_id"] != $user[0])
-        {
-            ?> <div style="text-align:center;"><h2><?php echo _PASPROPRIOTICKET; ?></h2>
-            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
-        }
-        else { 
-            $sql = mysql_query("INSERT INTO ". $nuked["prefix"] ."_support_messages (texte, date, auteur, auteur_id, auteur_ip, thread_id, admin) VALUES 
-                ('". secu_html(html_entity_decode($corps, ENT_QUOTES)) ."', '". time() ."', '". mysql_real_escape_string($user[2]) ."', 
-                    '". mysql_real_escape_string($user[0]) ."', '". mysql_real_escape_string($user[3]) ."', '". mysql_real_escape_string($thread_ID) ."', '0') ");
-            if(!$sql){
-            ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
-            }
-            else if($new == 0) {
-        ?>
-<div style="text-align:center;">
-    <h2><?php echo _SUPPORT; ?></h2>
-    <h3><?php echo $thread["titre"]; ?></h3>
-    <br /><br />
-    <?php echo _REPLYSUCCESS; ?>
-    <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br />
-</div>
-
-        <?php     
-    }
-    }
-    }
     
-    
-    function close($thread_ID)
-    {
+    function close($thread_ID) {
         global $lvlUser, $nuked, $user;
         if(is_nan($thread_ID))
         {
@@ -236,10 +194,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
     }
     }
     }
-    
-    
-    function open($thread_ID)
-    {
+    function open($thread_ID){
         global $lvlUser, $nuked, $user;
         if(is_nan($thread_ID))
         {
@@ -276,7 +231,6 @@ if ($lvlUser >= $level_access && $level_access > -1)
     }
     }
     }
-
     function addTicket($sujet, $corps, $cat, $notify)
     {
         global $lvlUser, $nuked, $user;
@@ -286,16 +240,12 @@ if ($lvlUser >= $level_access && $level_access > -1)
         }
         else {
             $time= time();
-        $sql = mysql_query("INSERT INTO ". $nuked["prefix"] ."_support_threads (titre, date, closed, auteur, auteur_id, cat_id, notify) VALUES 
-            ('". mysql_real_escape_string($sujet) ."', '". $time ."', '0', '". mysql_real_escape_string($user[2]) ."', 
-                '". mysql_real_escape_string($user[0]) ."', '". mysql_real_escape_string($cat) ."', '".$notify."') ");
+        $sql = mysql_query("INSERT INTO ". $nuked["prefix"] ."_support_threads (titre, date, closed, auteur, auteur_id, cat_id, notify) VALUES ('". mysql_real_escape_string($sujet) ."', '". $time ."', '0', '". mysql_real_escape_string($user[2]) ."', '". mysql_real_escape_string($user[0]) ."', '". mysql_real_escape_string($cat) ."', '".$notify."') ");
         if(!$sql){
-        ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
+        ?> <div style="text-align:center;"><h2><?php echo _ERREUR."1   ". mysql_error($sql); ?></h2></div><?php
         }
         else {
-            $sql = mysql_query("SELECT id FROM ". $nuked["prefix"] ."_support_threads WHERE titre = '". mysql_real_escape_string($sujet) ."' AND date = '". $time ."' 
-                AND closed = '0' AND auteur = '". mysql_real_escape_string($user[2]) ."' AND 
-                auteur_id = '". mysql_real_escape_string($user[0]) ."' AND cat_id = '". mysql_real_escape_string($cat) ."' AND notify = '".$notify."' LIMIT 0,1 ");
+            $sql = mysql_query("SELECT id FROM ". $nuked["prefix"] ."_support_threads WHERE date = '". $time ."' AND closed = '0' AND auteur_id = '". $user[0] ."' LIMIT 0,1 ");
             $sql = mysql_fetch_assoc($sql); 
             reply($sql["id"], $corps, 1);
         ?>
@@ -304,6 +254,46 @@ if ($lvlUser >= $level_access && $level_access > -1)
     <h3><?php echo $thread["titre"]; ?></h3>
     <br /><br />
     <?php echo _TICKETSUCCESS; ?>
+    <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br />
+</div>
+
+        <?php     
+    }
+    }
+    }
+    
+    function reply($thread_ID, $corps, $new=0)
+    {
+        global $lvlUser, $nuked, $user;
+        if(is_nan($thread_ID))
+        {
+            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php $new = 0;
+        }
+        $thread = recupThread($thread_ID);
+        if(empty($thread["id"]))
+        {
+            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php $new = 0;
+        }
+        else if($lvlUser == 0 || $thread["auteur_id"] != $user[0])
+        {
+            ?> <div style="text-align:center;"><h2><?php echo _PASPROPRIOTICKET; ?></h2>
+            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php $new = 0;
+        }
+        else { 
+            $requete = "INSERT INTO ". $nuked["prefix"] ."_support_messages (texte, date, auteur, auteur_id, auteur_ip, thread_id, admin)  VALUES ('". secu_html(html_entity_decode($corps, ENT_QUOTES)) ."', '". time() ."', '". mysql_real_escape_string($user[2]) ."', '". mysql_real_escape_string($user[0]) ."', '". mysql_real_escape_string($user[3]) ."', '". mysql_real_escape_string($thread_ID) ."', '0')";
+            $sql2 = mysql_query($requete);
+            if(!$sql2){
+            ?> <div style="text-align:center;"><h2><?php echo _ERREUR."   ".  mysql_errno($sql2)." : ".  mysql_error($sql2); ?></h2></div><?php
+            }
+            else if($new == 0) {
+        ?>
+<div style="text-align:center;">
+    <h2><?php echo _SUPPORT; ?></h2>
+    <h3><?php echo $thread["titre"]; ?></h3>
+    <br /><br />
+    <?php echo _REPLYSUCCESS; ?>
     <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br />
 </div>
 

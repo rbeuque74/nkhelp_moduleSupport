@@ -7,9 +7,11 @@ Réalisé par Rbeuque74 pour nkhelp.fr
 *Gère le cas "aucuns tickets"
 *Fermeture/Ouverture d'un ticket
 *Gère "ce ticket n'existe pas"
+*Gère l'admin
 
 
 ## A FAIRE ##
-*Gérer l'admin
 *Gérer les langues
 *Interdire le retrait de toutes les catégories
+*Fichiers de config php
+*Modif couleurs via admin ?
