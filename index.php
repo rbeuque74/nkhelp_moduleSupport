@@ -118,7 +118,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
         ?>
 <div style="text-align:center;">
     <h2><?php echo _SUPPORT; ?></h2>
-    <a href="index.php?file=Support">[ <?php echo _LISTTICKETS; ?> ]</a>
+    <a href="index.php?file=Support<?php if($thread["closed"] == 1) { echo "&amp;op=index&amp;tickets=close"; } ?>">[ <?php echo _LISTTICKETS; ?> ]</a>
     <h3><?php echo $thread["titre"]; ?></h3>
 </div>
         <?php while($m = mysql_fetch_assoc($messages)){ if($m["admin"] == 0){ ?>
