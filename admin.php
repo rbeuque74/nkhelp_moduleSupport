@@ -167,9 +167,9 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 	<tr><td align="center"><h3><b><?php echo _REPLY; ?></b></h3><input type="text" style="display:none;" name="id" id="id" size="5" value="<?php echo $thread_ID; ?>" /></td></tr>
 	<tr><td align="center"><textarea class="editorsimpla" id="ns_corps" name="corps" cols="60" rows="12"></textarea><br /><input type="submit" class="bouton" value="<?php echo _SEND; ?>"/></td></tr>
     </table>
-</form><div style="text-align:center;"><br />[ <a href="index.php?file=Support&amp;page=admin&amp;op=close&amp;id=<?php echo $thread["id"]; ?>"><b><?php echo _CLOSE." "._THISTICKET; ?></b></a> ] - [ <a href="index.php?file=Support&amp;page=Admin"><b><?php echo _BACK; ?></b></a> ]<br /><br /></div><?php } else { ?>
+</form><div style="text-align:center;"><br />[ <a href="index.php?file=Support&amp;page=admin&amp;op=close&amp;id=<?php echo $thread["id"]; ?>"><b><?php echo _CLOSE." "._THISTICKET; ?></b></a> ] - [ <a href="index.php?file=Support&amp;page=admin"><b><?php echo _BACK; ?></b></a> ]<br /><br /></div><?php } else { ?>
 
-<div style="text-align:center;"><br />[ <a href="index.php?file=Support&amp;page=admin&amp;op=open&amp;id=<?php echo $thread["id"]; ?>"><b><?php echo _OPEN." "._THISTICKET; ?></b></a> ] - [ <a href="index.php?file=Support&amp;page=Admin"><b><?php echo _BACK; ?></b></a> ]<br /><br /></div><?php } ?>
+<div style="text-align:center;"><br />[ <a href="index.php?file=Support&amp;page=admin&amp;op=open&amp;id=<?php echo $thread["id"]; ?>"><b><?php echo _OPEN." "._THISTICKET; ?></b></a> ] - [ <a href="index.php?file=Support&amp;page=admin"><b><?php echo _BACK; ?></b></a> ]<br /><br /></div><?php } ?>
 </div></div>
 <?php    }
     }
