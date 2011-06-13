@@ -15,6 +15,7 @@ if (!defined("INDEX_CHECK"))
 
 global $nuked, $language, $user;
 translate("modules/Support/lang/" . $language . ".lang.php");
+include("modules/Support/config.php");
 
 opentable();
 
@@ -35,7 +36,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
 {
     function index($closed=0)
     {
-        global $lvlUser, $nuked, $user, $bgcolor1, $bgcolor2, $bgcolor3;
+        global $lvlUser, $nuked, $user, $color_content2, $color_content1, $color_top;
         if($lvlUser AND $closed == 0)
         {
             $tickets = recupTickets(); 
@@ -49,9 +50,9 @@ if ($lvlUser >= $level_access && $level_access > -1)
     <h2><?php echo _SUPPORT; ?></h2>
     <?php if($closed){ ?><a href="index.php?file=Support"><?php } else { echo "<b>";} echo "[ "._LISTTICKETS." ". _OUVERTS." ]"; if($closed){ ?></a> <?php }else { echo "</b>";} ?> - <?php if(!$closed){?><a href="index.php?file=Support&amp;op=index&amp;tickets=close"><?php }else { echo "<b>";} echo "[ "._LISTTICKETS." ". _FERMES." ]"; if(!$closed){ ?></a><?php }else { echo "</b>";} ?><br /><br />
 </div>
-<table style="margin-left:auto; margin-right:auto; text-align:left; background:<?php echo $bgcolor2; ?>; border:1px solid <?php echo $bgcolor3; ?>; width:98%;" cellspacing="1" cellpadding="2">
+<table style="margin-left:auto; margin-right:auto; text-align:left; background:<?php echo $color_content1; ?>; border:1px solid <?php echo $color_top; ?>; width:98%;" cellspacing="1" cellpadding="2">
     <tbody>
-        <tr style="background: <?php echo $bgcolor3; ?>">
+        <tr style="background: <?php echo $color_top; ?>">
             <td><b>#</b></td>
             <td><b><?php echo _SUJET; ?></b></td>
             <td><b><?php echo _CAT; ?></b></td>
@@ -64,12 +65,12 @@ if ($lvlUser >= $level_access && $level_access > -1)
         </tr>
             <?php }
         else if(mysql_num_rows($tickets) == 0){ ?>
-          <tr style="background: <?php echo $bgcolor2; ?>">
+          <tr style="background: <?php echo $color_content1; ?>">
             <td colspan="5" style="text-align:center;"><?php echo _NOTICKETS; ?></td>
         </tr> <?php }
         else { $counter=0;
             while($t = mysql_fetch_assoc($tickets)){ ?>
-        <tr <?php if($counter%2 ==0){ ?>style="background: <?php echo $bgcolor2; ?>" <?php } else { ?>  style="background: <?php echo $bgcolor1; ?>" <?php } ?> >
+        <tr <?php if($counter%2 ==0){ ?>style="background: <?php echo $color_content1; ?>" <?php } else { ?>  style="background: <?php echo $color_content2; ?>" <?php } ?> >
             <td><?php echo $t["id"]; ?></td>
             <td><?php echo $t["titre"]; ?></td>
             <td><?php $cat = getCatName($t["cat_id"]); echo $cat["nom"]; ?></td>
@@ -103,7 +104,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
     
     function viewThread($thread_ID)
     {
-        global $lvlUser, $nuked, $user, $bgcolor1, $bgcolor2, $bgcolor3;
+        global $lvlUser, $nuked, $user, $color_content2, $color_content1, $color_top;
         $thread = recupThread($thread_ID);
         if(empty($thread["id"]))
         {
@@ -131,10 +132,10 @@ if ($lvlUser >= $level_access && $level_access > -1)
             $user_avatar = mysql_fetch_assoc($sql);
             ?>
 
-            <div id="message" style="width:100%; padding:1px; margin-bottom:3px; text-align:left; border:1px solid <?php echo $bgcolor3; ?>; <?php if($counter != 0){ ?> border-top:0px; <?php } ?> background : <?php if($m["admin"] == 1){ echo "orange"; } else if($counter%2 ==0){echo $bgcolor2;} else {echo $bgcolor1;} ?>; ">
+            <div id="message" style="width:100%; padding:1px; margin-bottom:3px; text-align:left; border:1px solid <?php echo $color_top; ?>; <?php if($counter != 0){ ?> border-top:0px; <?php } ?> background : <?php if($m["admin"] == 1){ echo $color_admin; } else if($counter%2 ==0){echo $color_content1;} else {echo $color_content2;} ?>; ">
                 <div style="float:left; width:45px; height:45px; padding-right:3px; "><img src="<?php echo checkimg($user_avatar["avatar"]); ?>" width="45" height="45" alt="" /></div>
                 <div>
-                    <div style="left:4px; background: <?php echo $bgcolor3; ?>"><?php if($m["admin"] == 0){ echo _YOUWROTE;} else { echo $m["auteur"] . _WROTE;} echo strftime("%x &agrave; %H:%M", $m["date"]) ?></div>
+                    <div style="left:4px; background: <?php echo $color_top; ?>"><?php if($m["admin"] == 0){ echo _YOUWROTE;} else { echo $m["auteur"] . _WROTE;} echo strftime("%x &agrave; %H:%M", $m["date"]) ?></div>
                     <div style="padding-left:4px;"><?php echo $m["texte"] ?></div>
                 </div>
                 <div style="clear:both;"></div>
