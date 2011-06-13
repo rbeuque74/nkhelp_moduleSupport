@@ -16,6 +16,7 @@ if (!defined("INDEX_CHECK"))
 global $user, $language;
 translate("modules/Support/lang/" . $language . ".lang.php");
 include("modules/Admin/design.php");
+include("modules/Support/config.php");
 admintop();
 
 if (!$user)
@@ -35,7 +36,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 	global $nuked, $language; ?>
 
 <div class="content-box"> 
-		<div class="content-box-header"><h3><?php echo _ADMINSUPPORT; ?></h3>
+        <div class="content-box-header"><h3><?php echo _ADMINSUPPORT; ?></h3>
         <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Support.php" rel="modal">
 	<img style="border: 0;" src="help/help.gif" alt="" title="<?php echo _HELP; ?>" /></a>
 	</div></div>
@@ -79,7 +80,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 
     function viewThread($thread_ID)
     {
-        global $nuked, $language;
+        global $nuked, $language, $color_top, $color_content1, $color_content2, $color_admin;
         $thread = recupThread($thread_ID);
         if(empty($thread["id"]))
         {
@@ -99,17 +100,24 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 	<div class="tab-content" id="tab2"><div style="text-align: center;"><b><a href="index.php?file=Support&amp;page=admin"><?php echo _LISTTICKETS." ". _OUVERTS; ?></a> | 
 	<a href="index.php?file=Support&amp;page=admin&amp;op=listClose"><?php echo _LISTTICKETS." ". _FERMES; ?></a> | 
 	<a href="index.php?file=Support&amp;page=admin&amp;op=main_pref"><?php echo _PREFS; ?></a></b></div><br />
-    <table style="margin-left: auto;margin-right: auto;text-align: left;" cellspacing="1" cellpadding="3" border="0">
+    <table style="margin-left: auto;margin-right: auto;text-align: left;" cellspacing="1" cellpadding="0" border="0">
 	<tr><td align="center"><h4>&nbsp;&nbsp;<?php echo _SUJET." : ".$thread["titre"]; ?></h4></td></tr>
 
-        <?php while($m = mysql_fetch_assoc($messages)){ if($m["admin"] == 0){ ?>
-<tr><td><b><?php echo $m["auteur"] . _WROTE . strftime("%x %H:%M", $m["date"]) ?></b><br />
-<?php echo $m["texte"] ?></td></tr>
-            <?php } else { ?>
-<tr><td style="background-color: yellow;"><b>{admin} <?php echo $m["auteur"] . _WROTE . strftime("%x %H:%M", $m["date"]) ?></b><br />
-<?php echo $m["texte"] ?></td></tr>
-            <?php }
-        } ?> </table>
+        <?php while($m = mysql_fetch_assoc($messages)){ 
+            $sql = mysql_query("SELECT avatar FROM ". $nuked["prefix"] ."_users WHERE id = '".mysql_real_escape_string($m["auteur_id"])."' LIMIT 0,1");
+            $user_avatar = mysql_fetch_assoc($sql);
+            ?>
+        <tr <?php if($m["admin"] == 1){ ?>style="background:<?php echo $color_admin;?>;"<?php }?>><td style="padding:5px;"><div id="message" style="width:100%; text-align:left;">
+                <div style="float:left; width:45px; height:45px; padding-right:3px; "><img src="<?php echo checkimg($user_avatar["avatar"]); ?>" width="45" height="45" alt="" /></div>
+                <div>
+                    <div style="left:4px;"><b><?php if($m["admin"] != 0){ ?> {admin} <?php } echo $m["auteur"] . _WROTE.strftime("%x &agrave; %H:%M", $m["date"]) ?></b></div>
+                    <div style="padding-left:4px;"><?php echo $m["texte"] ?></div>
+                </div>
+                <div style="clear:both;"></div>
+                
+            </div></td></tr>
+            
+      <?php  } ?> </table>
 
 <br />
 <?php if($thread["closed"] == 0) { ?>
@@ -253,23 +261,25 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 
     function main_pref()
     {
-        global $nuked, $language;
+        global $nuked, $language; ?>
 
-       echo "<div class=\"content-box\">\n" //<!-- Start Content Box -->
-		. "<div class=\"content-box-header\"><h3>" . _ADMINCONTACT . "</h3>\n"
-        . "<div style=\"text-align:right;\"><a href=\"help/" . $language . "/Contact.php\" rel=\"modal\">\n"
-	. "<img style=\"border: 0;\" src=\"help/help.gif\" alt=\"\" title=\"" . _HELP . "\" /></a>\n"
-	. "</div></div>\n"
-	. "<div class=\"tab-content\" id=\"tab2\"><div style=\"text-align: center;\"><b><a href=\"index.php?file=Contact&amp;page=admin\">" . _LISTMAIL . "</a> | "
-	. "</b>" . _PREFS . "</div><br />\n"
-	. "<form method=\"post\" action=\"index.php?file=Contact&amp;page=admin&amp;op=change_pref\">\n"
-	. "<table style=\"margin-left: auto;margin-right: auto;text-align: left;\" border=\"0\" cellspacing=\"0\" cellpadding=\"3\">\n"
-	. "<tr><td align=\"center\"><big>" . _PREFS . "</big></td></tr>\n"
-	. "<tr><td>" . _EMAILCONTACT . " : <input type=\"text\" name=\"contact_mail\" size=\"40\" value=\"" . $nuked['contact_mail'] . "\" /></td></tr>\n"
-	. "<tr><td>" . _FLOODCONTACT . " : <input type=\"text\" name=\"contact_flood\" size=\"2\" value=\"" . $nuked['contact_flood'] . "\" /></td></tr></table>\n"
-	. "<div style=\"text-align: center;\"><br /><input type=\"submit\" value=\"" . _SEND . "\" /></div>\n"
-	. "<div style=\"text-align: center;\"><br />[ <a href=\"index.php?file=Contact&amp;page=admin\"><b>" . _BACK . "</b></a> ]</div></form><br /></div></div>\n";
-    } 
+<div class="content-box"><div class="content-box-header"><h3><?php echo _ADMINSUPPORT; ?></h3>
+        <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Support.php" rel="modal">
+	<img style="border: 0;" src="help/help.gif" alt="" title="<?php echo _HELP; ?>" /></a>
+	</div></div>
+	<div class="tab-content" id="tab2"><div style="text-align: center;"><b><a href="index.php?file=Support&amp;page=admin"><?php echo _LISTTICKETS." ". _OUVERTS; ?></a> | 
+	<a href="index.php?file=Support&amp;page=admin&amp;op=index&amp;tickets=close"><?php echo _LISTTICKETS." ". _FERMES; ?></a></b> | 
+	<?php echo _PREFS; ?></div><br />
+
+       
+	<form method="post" action="index.php?file=Contact&amp;page=admin&amp;op=change_pref">
+	<table style="margin-left: auto;margin-right: auto;text-align: left;" border="0" cellspacing="0" cellpadding="3">
+	<tr><td align="center"><big><?php echo _PREFS; ?></big></td></tr>
+	<tr><td><?php echo _EMAILCONTACT; ?>  : <input type="text" name="contact_mail" size="40" value="<?php echo  $nuked['contact_mail'];?> " /></td></tr>
+	<tr><td><?php echo _FLOODCONTACT; ?>  : <input type="text" name="contact_flood" size="2" value="<?php echo $nuked['contact_flood'];?> " /></td></tr></table>
+	<div style="text-align: center;"><br /><input type="submit" value="<?php echo _SEND; ?>" /></div>
+	<div style="text-align: center;"><br />[ <a href="index.php?file=Contact&amp;page=admin"><b><?php echo  _BACK; ?></b></a> ]</div></form><br /></div></div>
+<?php    } 
 
     function change_pref($contact_mail, $contact_flood)
     {
