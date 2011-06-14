@@ -276,33 +276,93 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 	<?php echo _PREFS; ?></div><br />
 
        
-	<form method="post" action="index.php?file=Contact&amp;page=admin&amp;op=change_pref">
+	
 	<table style="margin-left: auto;margin-right: auto;text-align: left;" border="0" cellspacing="0" cellpadding="3">
-	<tr><td align="center"><big><?php echo _PREFS; ?></big></td></tr>
-	<tr><td><?php echo _EMAILCONTACT; ?>  : <input type="text" name="contact_mail" size="40" value="<?php echo  $nuked['contact_mail'];?> " /></td></tr>
-	<tr><td><?php echo _FLOODCONTACT; ?>  : <input type="text" name="contact_flood" size="2" value="<?php echo $nuked['contact_flood'];?> " /></td></tr></table>
-	<div style="text-align: center;"><br /><input type="submit" value="<?php echo _SEND; ?>" /></div>
-	<div style="text-align: center;"><br />[ <a href="index.php?file=Contact&amp;page=admin"><b><?php echo  _BACK; ?></b></a> ]</div></form><br /></div></div>
+	<tr><td align="center"><b><?php echo _PREFS; ?></b></td></tr>
+        <tr><td>
+            <form method="post" action="index.php?file=Support&amp;page=admin&amp;op=pref_insert_cat">
+            <?php echo _INSERTCAT; ?><br /><div style="padding-left:10px;"><br />
+            <label for="categorie_insert"><?php echo _NEWCATNAME;?></label><input type="text" id="categorie_insert" name="categorie_insert" size="40" /><br /><br />
+            <label for="ordre_insert"><?php echo _ORDRE;?></label><input type="text" name="ordre_insert" id="ordre_insert" size="2" /><br /><br /><input type="submit" value="<?php echo _SEND; ?>" /></div>
+            </form>
+        </td></tr>
+        <tr><td>
+            <form method="post" action="index.php?file=Support&amp;page=admin&amp;op=pref_rename_cat">
+            <?php echo _RENAMECAT; ?><br /><div style="padding-left:10px;"><br /><label for="categorie_old"><?php echo _CATAMODIF;?></label><select name="categorie_old" id="categorie_old">
+                <?php $cats = recupCat(); while($cat = mysql_fetch_assoc($cats)){ ?> <option value="<?php echo $cat["id"];?>"><?php echo $cat["nom"]." (".$cat["ordre"].")";?></option><?php } ?>
+            </select><br /><br />
+            <label for="categorie_rename"><?php echo _NEWCATNAME;?></label><input type="text" id="categorie_rename" name="categorie_rename" size="40" /><br /><br />
+            <label for="ordre_rename"><?php echo _ORDRE;?></label><input type="text" name="ordre_rename" id="ordre_rename" size="2" /><br /><br /><input type="submit" value="<?php echo _SEND; ?>" /></div>
+            </form>
+        </td></tr>
+	<tr><td>
+            <form method="post" action="index.php?file=Support&amp;page=admin&amp;op=pref_delete_cat">
+            <?php echo _DELETECAT; ?><br /><div style="padding-left:10px;"><br /><label for="categorie_delete"><?php echo _DELETETHISCAT;?></label>
+                <select name="categorie_delete" id="categorie_delete">
+                <?php $cats = recupCat(); while($cat = mysql_fetch_assoc($cats)){ ?> <option value="<?php echo $cat["id"];?>"><?php echo $cat["nom"];?></option><?php } ?>
+            </select><br /><br /><input type="submit" value="<?php echo _SEND; ?>" /></div>
+            </form>
+        </td></tr></table>
+	<div style="text-align: center;"><br />[ <a href="index.php?file=Support&amp;page=admin"><b><?php echo  _BACK; ?></b></a> ]</div><br /></div></div>
 <?php    } 
 
-    function change_pref($contact_mail, $contact_flood)
-    {
-        global $nuked, $user;
-
-        $upd1 = mysql_query("UPDATE " . CONFIG_TABLE . " SET value = '" . $contact_mail . "' WHERE name = 'contact_mail'");
-        $upd2 = mysql_query("UPDATE " . CONFIG_TABLE . " SET value = '" . $contact_flood . "' WHERE name = 'contact_flood'");
-		// Action
-		$texteaction = "". _ACTIONPREFCONT .".";
-		$acdate = time();
-		$sqlaction = mysql_query("INSERT INTO ". $nuked['prefix'] ."_action  (`date`, `pseudo`, `action`)  VALUES ('".$acdate."', '".$user[0]."', '".$texteaction."')");
-		//Fin action
-		echo "<div class=\"notification success png_bg\">\n"
+    
+    function insert_cat($nom, $ordre){
+        global $nuked;
+        if(is_nan($ordre)){$ordre = 1;}
+        echo mysql_real_escape_string(html_entity_decode($nom));
+        $sql = mysql_query("INSERT INTO ". $nuked['prefix'] ."_support_cat (nom, ordre) VALUES ( '".$nom."', '".$ordre."') ");
+        echo "<div class=\"notification success png_bg\">\n"
 		. "<div>\n"
-		. "" . _PREFUPDATED . "\n"
+		. "" . _CATADDED . "\n"
 		. "</div>\n"
 		. "</div>\n";
-        redirect("index.php?file=Contact&page=admin", 2);
-    } 
+        redirect("index.php?file=Support&page=admin", 2);
+        
+    }
+	
+    function rename_cat($old_cat, $nom, $ordre){
+        global $nuked;
+        if(is_nan($ordre)){$ordre = 1;}
+        if(is_nan($old_cat)){echo "<div class=\"notification error png_bg\">\n"
+		. "<div>\n"
+		. "" . _ERREUR . "\n"
+		. "</div>\n"
+		. "</div>\n";
+        redirect("index.php?file=Support&page=admin&op=main_pref", 2);}
+        $sql = mysql_query("UPDATE ". $nuked['prefix'] ."_support_cat SET nom = '".mysql_real_escape_string(secu_html(html_entity_decode($nom), ENT_QUOTES))."', ordre = '".$ordre."' WHERE id = '".$old_cat."' ");
+        echo "<div class=\"notification success png_bg\">\n"
+		. "<div>\n"
+		. "" . _CATRENAMED . "\n"
+		. "</div>\n"
+		. "</div>\n";
+        redirect("index.php?file=Support&page=admin", 2);
+        
+    }
+	
+    function delete_cat($id){
+        global $nuked;
+        $erreur = 0;
+        $cat = recupCat();
+        while($c = mysql_fetch_assoc($cat)){$erreur++;}
+        if($erreur > 1){$erreur = false;} else {$erreur = true;}
+        
+        if(is_nan($id) OR $erreur){echo "<div class=\"notification error png_bg\">\n"
+		. "<div>\n"
+		. "" . _ERREUR . "\n";
+		if($erreur){ echo "<br />"._ERRNOCAT . "\n";}
+		echo "</div>\n"
+		. "</div>\n";
+        redirect("index.php?file=Support&page=admin&op=main_pref", 5);}
+        else {
+            $sql = mysql_query("DELETE FROM ". $nuked['prefix'] ."_support_cat WHERE id = '".$id."' ");
+            echo "<div class=\"notification success png_bg\">\n"
+                    . "<div>\n"
+                    . "" . _CATDELETED . "\n"
+                    . "</div>\n"
+                    . "</div>\n";
+            redirect("index.php?file=Support&page=admin", 2);}
+    }
 
     
     
@@ -339,11 +399,11 @@ if ($visiteur >= $level_admin && $level_admin > -1)
         $sql = mysql_fetch_assoc($sql);
         return $sql;
     }
-    function getCatName($catID)
+    function getCat($catID)
     {
 	global $nuked;
         if(is_nan($cat_ID)){return 0;}
-    	$sql = mysql_query("SELECT nom FROM ". $nuked["prefix"] ."_support_cat WHERE id = '" . $catID . "' ORDER BY id DESC LIMIT 0,1");
+    	$sql = mysql_query("SELECT * FROM ". $nuked["prefix"] ."_support_cat WHERE id = '" . $catID . "' ORDER BY id DESC LIMIT 0,1");
         $sql = mysql_fetch_assoc($sql);
         return $sql;
     }
@@ -411,8 +471,16 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 	main_pref();
 	break;
 
-	case "change_pref":
-	change_pref($_REQUEST['contact_mail'], $_REQUEST['contact_flood']);
+	case "pref_insert_cat":
+	insert_cat($_REQUEST['categorie_insert'], $_REQUEST['ordre_insert']);
+	break;
+    
+	case "pref_rename_cat":
+	rename_cat($_REQUEST['categorie_old'], $_REQUEST['categorie_rename'], $_REQUEST['ordre_rename']);
+	break;
+    
+	case "pref_delete_cat":
+	delete_cat($_REQUEST['categorie_delete']);
 	break;
 
 	default:
