@@ -56,7 +56,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
         {
             $tickets = ($closed == 0) ? recupTicketsCat($c["id"]) : recupTicketsCatClose($c["id"]);
             if(mysql_num_rows($tickets) == 0){
-                break;
+                continue;
             } ?>
             <tr><td colspan="5"><br /><h4><?php echo $c["nom"]; ?></h4></td></tr>
             <?php while($t = mysql_fetch_assoc($tickets))
