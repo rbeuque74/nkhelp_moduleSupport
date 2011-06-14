@@ -1,18 +1,17 @@
 Module "Support" pour Nuked-KlaN
-RÃ©alisÃ© par Rbeuque74 pour nkhelp.fr
+Réalisé par Rbeuque74 pour nkhelp.fr
 
-*Affichage de la liste des tickets pour un utilisateur connectÃ©
+*Affichage de la liste des tickets pour un utilisateur connecté
 *Vue du fil de discussion d'un ticket
-*GÃ¨re les visiteurs
-*GÃ¨re le cas "aucuns tickets"
+*Gère les visiteurs
+*Gère le cas "aucuns tickets"
 *Fermeture/Ouverture d'un ticket
-*GÃ¨re "ce ticket n'existe pas"
-*GÃ¨re l'admin
+*Gère "ce ticket n'existe pas"
+*Gère l'admin
 *Fichiers de config php
-
+*Gère les catégories
+*Interdit le retrait de toutes les catégories
 
 ## A FAIRE ##
-*GÃ©rer langue english
-*GÃ©rer les catÃ©gories
-*Interdire le retrait de toutes les catÃ©gories
+*Gérer langue english
 *Modif couleurs via admin ?
