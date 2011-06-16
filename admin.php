@@ -84,8 +84,12 @@ if ($visiteur >= $level_admin && $level_admin > -1)
         $thread = recupThread($thread_ID);
         if(empty($thread["id"]))
         {
-            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
-            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
+            echo "<div class=\"notification error png_bg\">\n"
+            . "<div>\n"
+            . "" . _TICKETDONTEXIST . "\n"
+            . "</div>\n"
+            . "</div>\n"; 
+            redirect("javascript:history.back()",5);
         }
         else
         {
@@ -104,7 +108,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 	<tr><td align="center"><h4>&nbsp;&nbsp;<?php echo _SUJET." : ".$thread["titre"]; ?></h4></td></tr>
 
         <?php while($m = mysql_fetch_assoc($messages)){ 
-            $sql = mysql_query("SELECT avatar FROM ". $nuked["prefix"] ."_users WHERE id = '".mysql_real_escape_string($m["auteur_id"])."' LIMIT 0,1");
+            $sql = mysql_query("SELECT avatar FROM ". mysql_real_escape_string($nuked["prefix"]) ."_users WHERE id = '".mysql_real_escape_string($m["auteur_id"])."' LIMIT 0,1");
             $user_avatar = mysql_fetch_assoc($sql);
             ?>
         <tr <?php if($m["admin"] == 1){ ?>style="background:<?php echo $color_admin;?>;"<?php }?>><td style="padding:5px;"><div id="message" style="width:100%; text-align:left;">
@@ -139,37 +143,45 @@ if ($visiteur >= $level_admin && $level_admin > -1)
         global $nuked, $language, $user; ?>
 <div class="content-box"> 
 		<div class="content-box-header"><h3><?php echo _ADMINSUPPORT; ?></h3>
-        <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Contact.php" rel="modal">
+        <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Support.php" rel="modal">
 	<img style="border: 0;" src="help/help.gif" alt="" title="<?php echo _HELP; ?>" /></a>
 	</div></div>
     <div class="tab-content" id="tab2"> <?php
-        if(is_nan($thread_ID))
-        {
-            ?> <div style="text-align:center;"><h3><?php echo _TICKETDONTEXIST; ?></h3>
-            <br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
-        }
         $thread = recupThread($thread_ID);
         if(empty($thread["id"]))
         {
-            ?> <div style="text-align:center;"><h3><?php echo _TICKETDONTEXIST; ?></h3>
-            <br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /></div><?php
+            echo "<div class=\"notification error png_bg\">\n"
+            . "<div>\n"
+            . "" . _TICKETDONTEXIST . "\n"
+            . "</div>\n"
+            . "</div>\n"; 
+            redirect("javascript:history.back()",5);
         }
+        else if(empty($corps)){echo "<div class=\"notification error png_bg\">\n"
+            . "<div>\n"
+            . "" . _UNKSUJETCORPS . "\n"
+            . "</div>\n"
+            . "</div>\n";
+            redirect("javascript:history.back()",5);
+        }
+        
         else { 
-            $sql = mysql_query("INSERT INTO ". $nuked["prefix"] ."_support_messages (texte, date, auteur, auteur_id, auteur_ip, thread_id, admin) VALUES ('". mysql_real_escape_string(secu_html(html_entity_decode($corps, ENT_QUOTES))) ."', '". time() ."', '". mysql_real_escape_string($user[2]) ."', '". mysql_real_escape_string($user[0]) ."', '". mysql_real_escape_string($user[3]) ."', '". mysql_real_escape_string($thread_ID) ."', '1') ");
+            $sql = mysql_query("INSERT INTO ". mysql_real_escape_string($nuked["prefix"]) ."_support_messages (texte, date, auteur, auteur_id, auteur_ip, thread_id, admin) VALUES ('". mysql_real_escape_string($corps) ."', '". time() ."', '". mysql_real_escape_string($user[2]) ."', '". mysql_real_escape_string($user[0]) ."', '". mysql_real_escape_string($user[3]) ."', '". mysql_real_escape_string($thread_ID) ."', '1') ");
             if(!$sql){
             ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
+            redirect("javascript:history.back()",5);
             }
             else {         
                 
                 if($thread["notify"]){
                     $sql_user_mail = mysql_query("SELECT * FROM ". USER_TABLE ." WHERE id = '$user[0]' LIMIT 0,1 ");
                     $sql_user_mail = mysql_fetch_assoc($sql_user_mail);
-                    sendmail(secu_html(html_entity_decode($user[2], ENT_QUOTES)), secu_html(html_entity_decode($thread["titre"], ENT_QUOTES)), $thread_ID, secu_html(html_entity_decode($sql_user_mail["mail"], ENT_QUOTES)));
+                    sendmail($user[2], $thread["titre"], $thread_ID, secu_html(html_entity_decode($sql_user_mail["mail"], ENT_QUOTES)));
                 }
         ?>
 <div class="notification success png_bg">
 	<div>
-	<?php echo _REPLYSUCCESS; ?>
+	<?php echo _REPLYSUCCESS."\n".$corps; ?>
 	</div>
 	</div>
 	<?php redirect("index.php?file=Support&page=admin", 2); ?>
@@ -185,25 +197,25 @@ if ($visiteur >= $level_admin && $level_admin > -1)
         global $nuked, $language, $user; ?>
 <div class="content-box"> 
 		<div class="content-box-header"><h3><?php echo _ADMINSUPPORT; ?></h3>
-        <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Contact.php" rel="modal">
+        <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Support.php" rel="modal">
 	<img style="border: 0;" src="help/help.gif" alt="" title="<?php echo _HELP; ?>" /></a>
 	</div></div>
     <div class="tab-content" id="tab2"><?php 
-        if(is_nan($thread_ID))
-        {
-            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
-            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /><br /></div><?php
-        }
         $thread = recupThread($thread_ID);
         if(empty($thread["id"]))
         {
-            ?> <div style="text-align:center;"><h2><?php echo _TICKETDONTEXIST; ?></h2>
-            <br /><br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /><br /></div><?php
+            echo "<div class=\"notification error png_bg\">\n"
+            . "<div>\n"
+            . "" . _TICKETDONTEXIST . "\n"
+            . "</div>\n"
+            . "</div>\n"; 
+            redirect("javascript:history.back()",5);
         }
         else { 
-            $sql = mysql_query("UPDATE  ". $nuked["prefix"] ."_support_threads SET  `closed` =  '1' WHERE id = '". mysql_real_escape_string($thread_ID) ."' ");
+            $sql = mysql_query("UPDATE  ". mysql_real_escape_string($nuked["prefix"]) ."_support_threads SET  `closed` =  '1' WHERE id = '". mysql_real_escape_string($thread_ID) ."' ");
             if(!$sql){
             ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
+            redirect("javascript:history.back()",5);
             }
             else {
         ?>
@@ -227,25 +239,25 @@ if ($visiteur >= $level_admin && $level_admin > -1)
         global $nuked, $language, $user; ?>
 <div class="content-box"> 
 		<div class="content-box-header"><h3><?php echo _ADMINSUPPORT; ?></h3>
-        <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Contact.php" rel="modal">
+        <div style="text-align:right;"><a href="help/<?php echo $language; ?>/Support.php" rel="modal">
 	<img style="border: 0;" src="help/help.gif" alt="" title="<?php echo _HELP; ?>" /></a>
 	</div></div>
     <div class="tab-content" id="tab2"><?php 
-        if(is_nan($thread_ID))
-        {
-            ?> <div style="text-align:center;"><h3><?php echo _TICKETDONTEXIST; ?></h3>
-            <br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /><br /></div><?php
-        }
         $thread = recupThread($thread_ID);
         if(empty($thread["id"]))
         {
-            ?> <div style="text-align:center;"><h3><?php echo _TICKETDONTEXIST; ?></h3>
-            <br /><a href="javascript:history.back()"><b>[ <?php echo _BACK; ?> ]</b></a><br /><br /></div><?php
+            echo "<div class=\"notification error png_bg\">\n"
+            . "<div>\n"
+            . "" . _TICKETDONTEXIST . "\n"
+            . "</div>\n"
+            . "</div>\n"; 
+            redirect("javascript:history.back()",5);
         }
         else { 
-            $sql = mysql_query("UPDATE  ". $nuked["prefix"] ."_support_threads SET  `closed` =  '0' WHERE id = '". mysql_real_escape_string($thread_ID) ."' ");
+            $sql = mysql_query("UPDATE  ". mysql_real_escape_string($nuked["prefix"]) ."_support_threads SET  `closed` =  '0' WHERE id = '". mysql_real_escape_string($thread_ID) ."' ");
             if(!$sql){
             ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
+                redirect("javascript:history.back()",5);
             }
             else if($new == 0) {
         ?>
@@ -311,7 +323,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
         global $nuked;
         if(is_nan($ordre)){$ordre = 1;}
         echo mysql_real_escape_string(html_entity_decode($nom));
-        $sql = mysql_query("INSERT INTO ". $nuked['prefix'] ."_support_cat (nom, ordre) VALUES ( '".$nom."', '".$ordre."') ");
+        $sql = mysql_query("INSERT INTO ". mysql_real_escape_string($nuked["prefix"]) ."_support_cat (nom, ordre) VALUES ( '".mysql_real_escape_string($nom)."', '".mysql_real_escape_string($ordre)."') ");
         echo "<div class=\"notification success png_bg\">\n"
 		. "<div>\n"
 		. "" . _CATADDED . "\n"
@@ -330,7 +342,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 		. "</div>\n"
 		. "</div>\n";
         redirect("index.php?file=Support&page=admin&op=main_pref", 2);}
-        $sql = mysql_query("UPDATE ". $nuked['prefix'] ."_support_cat SET nom = '".mysql_real_escape_string(secu_html(html_entity_decode($nom), ENT_QUOTES))."', ordre = '".$ordre."' WHERE id = '".$old_cat."' ");
+        $sql = mysql_query("UPDATE ". mysql_real_escape_string($nuked["prefix"]) ."_support_cat SET nom = '".mysql_real_escape_string($nom)."', ordre = '".mysql_real_escape_string($ordre)."' WHERE id = '".mysql_real_escape_string($old_cat)."' ");
         echo "<div class=\"notification success png_bg\">\n"
 		. "<div>\n"
 		. "" . _CATRENAMED . "\n"
@@ -347,7 +359,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
         while($c = mysql_fetch_assoc($cat)){$erreur++;}
         if($erreur > 1){$erreur = false;} else {$erreur = true;}
         
-        if(is_nan($id) OR $erreur){echo "<div class=\"notification error png_bg\">\n"
+        if(is_nan($id) OR $erreur OR $id <1){echo "<div class=\"notification error png_bg\">\n"
 		. "<div>\n"
 		. "" . _ERREUR . "\n";
 		if($erreur){ echo "<br />"._ERRNOCAT . "\n";}
@@ -355,7 +367,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 		. "</div>\n";
         redirect("index.php?file=Support&page=admin&op=main_pref", 5);}
         else {
-            $sql = mysql_query("DELETE FROM ". $nuked['prefix'] ."_support_cat WHERE id = '".$id."' ");
+            $sql = mysql_query("DELETE FROM ". mysql_real_escape_string($nuked["prefix"]) ."_support_cat WHERE id = '".mysql_real_escape_string($id)."' ");
             echo "<div class=\"notification success png_bg\">\n"
                     . "<div>\n"
                     . "" . _CATDELETED . "\n"
@@ -370,32 +382,32 @@ if ($visiteur >= $level_admin && $level_admin > -1)
     {
 	global $nuked;
         if(is_nan($cat_ID)){return 0;}
-    	$sql = mysql_query("SELECT * FROM ". $nuked["prefix"] ."_support_threads WHERE cat_id = '" . $cat_ID . "' AND closed = 0 ORDER BY id DESC");
+    	$sql = mysql_query("SELECT * FROM ". mysql_real_escape_string($nuked["prefix"]) ."_support_threads WHERE cat_id = '" . mysql_real_escape_string($cat_ID) . "' AND closed = 0 ORDER BY id DESC");
         return $sql;
     }
     function recupTicketsCatClose($cat_ID)
     {
 	global $nuked;
         if(is_nan($cat_ID)){return 0;}
-    	$sql = mysql_query("SELECT * FROM ". $nuked["prefix"] ."_support_threads WHERE cat_id = '" . $cat_ID . "' AND closed = 1 ORDER BY id DESC");
+    	$sql = mysql_query("SELECT * FROM ". mysql_real_escape_string($nuked["prefix"]) ."_support_threads WHERE cat_id = '" . mysql_real_escape_string($cat_ID) . "' AND closed = 1 ORDER BY id DESC");
         return $sql;
     }
     function recupThreadMessages($thread_id)
     {
 	global $nuked, $user;
-    	$sql = mysql_query("SELECT * FROM ". $nuked["prefix"] ."_support_messages WHERE thread_id = '" . $thread_id . "' ORDER BY date ASC");
+    	$sql = mysql_query("SELECT * FROM ". mysql_real_escape_string($nuked["prefix"]) ."_support_messages WHERE thread_id = '" . mysql_real_escape_string($thread_id) . "' ORDER BY date ASC");
         return $sql;
     }
     function recupCat()
     {
 	global $nuked, $user;
-    	$sql = mysql_query("SELECT * FROM ". $nuked["prefix"] ."_support_cat ORDER BY ordre ASC");
+    	$sql = mysql_query("SELECT * FROM ". mysql_real_escape_string($nuked["prefix"]) ."_support_cat ORDER BY ordre ASC");
         return $sql;
     }
     function recupThread($thread_id)
     {
 	global $nuked, $user;
-    	$sql = mysql_query("SELECT * FROM ". $nuked["prefix"] ."_support_threads WHERE id = '" . $thread_id . "' ORDER BY id DESC LIMIT 0,1");
+    	$sql = mysql_query("SELECT * FROM ". mysql_real_escape_string($nuked["prefix"]) ."_support_threads WHERE id = '" . mysql_real_escape_string($thread_id) . "' ORDER BY id DESC LIMIT 0,1");
         $sql = mysql_fetch_assoc($sql);
         return $sql;
     }
@@ -403,7 +415,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
     {
 	global $nuked;
         if(is_nan($cat_ID)){return 0;}
-    	$sql = mysql_query("SELECT * FROM ". $nuked["prefix"] ."_support_cat WHERE id = '" . $catID . "' ORDER BY id DESC LIMIT 0,1");
+    	$sql = mysql_query("SELECT * FROM ". mysql_real_escape_string($nuked["prefix"]) ."_support_cat WHERE id = '" . mysql_real_escape_string($catID) . "' ORDER BY id DESC LIMIT 0,1");
         $sql = mysql_fetch_assoc($sql);
         return $sql;
     }
@@ -414,7 +426,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
 
     	$time = time();
     	$date = strftime("%x %H:%M", $time);
-    	$url_site = mysql_query("SELECT name, value FROM ". $nuked["prefix"] ."_config WHERE name == 'url' LIMIT 0,1");
+    	$url_site = mysql_query("SELECT name, value FROM ". mysql_real_escape_string($nuked["prefix"]) ."_config WHERE name == 'url' LIMIT 0,1");
         $url_site = mysql_fetch_assoc($url_site);
         
     	
