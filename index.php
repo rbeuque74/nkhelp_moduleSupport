@@ -130,6 +130,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
         <?php $counter=0; while($m = mysql_fetch_assoc($messages)){
             $sql = mysql_query("SELECT avatar FROM ". mysql_real_escape_string($nuked["prefix"]) ."_users WHERE id = '".mysql_real_escape_string($m["auteur_id"])."' LIMIT 0,1");
             $user_avatar = mysql_fetch_assoc($sql);
+			if($m["admin"] == 1){$m["texte"] = stripslashes($m["texte"]);}
             ?>
 
             <div id="message" style="width:100%; padding:1px; margin-bottom:3px; text-align:left; border:1px solid <?php echo $color_top; ?>; <?php if($counter != 0){ ?> border-top:0px; <?php } ?> background : <?php if($m["admin"] == 1){ echo $color_admin; } else if($counter%2 ==0){echo $color_content1;} else {echo $color_content2;} ?>; ">
