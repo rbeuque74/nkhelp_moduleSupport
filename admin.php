@@ -110,6 +110,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
         <?php while($m = mysql_fetch_assoc($messages)){ 
             $sql = mysql_query("SELECT avatar FROM ". mysql_real_escape_string($nuked["prefix"]) ."_users WHERE id = '".mysql_real_escape_string($m["auteur_id"])."' LIMIT 0,1");
             $user_avatar = mysql_fetch_assoc($sql);
+			if($m["admin"] == 1){$m["texte"] = stripslashes($m["texte"]);}
             ?>
         <tr <?php if($m["admin"] == 1){ ?>style="background:<?php echo $color_admin;?>;"<?php }?>><td style="padding:5px;"><div id="message" style="width:100%; text-align:left;">
                 <div style="float:left; width:45px; height:45px; padding-right:3px; "><img src="<?php echo checkimg($user_avatar["avatar"]); ?>" width="45" height="45" alt="" /></div>
@@ -166,6 +167,7 @@ if ($visiteur >= $level_admin && $level_admin > -1)
         }
         
         else { 
+			$corps = html_entity_decode($corps, ENT_QUOTES);
             $sql = mysql_query("INSERT INTO ". mysql_real_escape_string($nuked["prefix"]) ."_support_messages (texte, date, auteur, auteur_id, auteur_ip, thread_id, admin) VALUES ('". mysql_real_escape_string($corps) ."', '". time() ."', '". mysql_real_escape_string($user[2]) ."', '". mysql_real_escape_string($user[0]) ."', '". mysql_real_escape_string($user[3]) ."', '". mysql_real_escape_string($thread_ID) ."', '1') ");
             if(!$sql){
             ?> <div style="text-align:center;"><h2><?php echo _ERREUR; ?></h2></div><?php
