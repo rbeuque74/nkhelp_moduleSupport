@@ -1,4 +1,4 @@
-Module "Support" pour Nuked-KlaN || v0.8-stable
+Module "Support" pour Nuked-KlaN (compatible 1.7.9 RC6) || v0.9
 Réalisé par Rbeuque74 pour nkhelp.fr
 
 *Affichage de la liste des tickets pour un utilisateur connecté
@@ -13,9 +13,5 @@ Réalisé par Rbeuque74 pour nkhelp.fr
 *Interdit le retrait de toutes les catégories
 
 ## A FAIRE ##
-*Gérer langue english
+*Gérer langue english (en cours)
 *Modif couleurs via admin ?
-
-
-e_advanced
-e_basic
