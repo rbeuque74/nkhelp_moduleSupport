@@ -125,11 +125,11 @@ if ($visiteur >= $level_admin && $level_admin > -1)
       <?php  } ?> </table>
 
 <br />
-<?php if($thread["closed"] == 0) { ?>
+<?php if($thread["closed"] == 0) { define('EDITOR_CHECK', 1); ?>
 <form method="post" action="index.php?file=Support&amp;page=admin&amp;op=reply">
     <table style="margin-left: auto;margin-right: auto;text-align: left;" cellspacing="1" cellpadding="3" border="0">
 	<tr><td align="center"><h3><b><?php echo _REPLY; ?></b></h3><input type="text" style="display:none;" name="id" id="id" size="5" value="<?php echo $thread_ID; ?>" /></td></tr>
-	<tr><td align="center"><textarea class="editorsimpla" id="ns_corps" name="corps" cols="60" rows="12"></textarea><br /><input type="submit" class="bouton" value="<?php echo _SEND; ?>"/></td></tr>
+	<tr><td align="center"><textarea id="art_texte" class="editor" name="corps" cols="60" rows="12"></textarea><br /><input type="submit" class="bouton" value="<?php echo _SEND; ?>"/></td></tr>
     </table>
 </form><div style="text-align:center;"><br />[ <a href="index.php?file=Support&amp;page=admin&amp;op=close&amp;id=<?php echo $thread["id"]; ?>"><b><?php echo _CLOSE." "._THISTICKET; ?></b></a> ] - [ <a href="index.php?file=Support&amp;page=admin"><b><?php echo _BACK; ?></b></a> ]<br /><br /></div><?php } else { ?>
 

@@ -86,9 +86,9 @@ if ($lvlUser >= $level_access && $level_access > -1)
     </tbody>
 </table>
 
-<?php if(!$closed){ ?>
+<?php if(!$closed){ define('EDITOR_CHECK', 1); ?>
 <br /><br /><br /><form method="post" action="index.php?file=Support&amp;op=post">
-	<table style="margin-left: auto;margin-right: auto;text-align: left;" cellspacing="1" cellpadding="3" border="0">
+	<table style="width:100%;" cellspacing="1" cellpadding="3" border="0">
 	<tr><td align="center"><h3><?php echo _ADDTICKET; ?></h3></td></tr>
 	<tr><td><b><?php echo _SUJET; ?> : </b>&nbsp;<input id="ns_sujet" type="text" name="sujet" value="" size="36" /></td></tr>
 	<tr><td><b><?php echo _CAT; ?> : </b>&nbsp;
@@ -97,7 +97,7 @@ if ($lvlUser >= $level_access && $level_access > -1)
                    <option value="<?php echo $c["id"]; ?>"><?php echo $c["nom"]; ?></option>
                    <?php } ?>
                 </select></td></tr>
-        <tr><td><textarea class="editorsimpla" id="ns_corps" name="corps" cols="60" rows="12"></textarea></td></tr>
+        <tr><td><textarea id="e_basic" name="corps" cols="60" rows="12"></textarea></td></tr>
         <tr><td><b><?php echo _NOTIFYME; ?> : </b>&nbsp;<input type="checkbox" name="notify" id="notify" checked="checked" /></td></tr>
 	<tr><td align="center"><br /><input type="submit" class="bouton" value="<?php echo _SEND; ?>" /></td></tr></table></form><br />
  <?php   }}
@@ -147,11 +147,11 @@ if ($lvlUser >= $level_access && $level_access > -1)
         } ?></div>
 
 <br />
-<?php if($thread["closed"] == 0) { ?>
+<?php if($thread["closed"] == 0) { define('EDITOR_CHECK', 1); ?>
 <form method="post" action="index.php?file=Support&amp;op=reply">
-    <table style="margin-left: auto;margin-right: auto;text-align: left;" cellspacing="1" cellpadding="3" border="0">
+    <table style="width:100%;" cellspacing="1" cellpadding="3" border="0">
 	<tr><td align="center"><h3><b><?php echo _REPLY; ?></b></h3><input type="text" style="display:none;" name="id" id="id" size="5" value="<?php echo $thread_ID; ?>" /></td></tr>
-	<tr><td><textarea class="editorsimpla" id="ns_corps" name="corps" cols="60" rows="12"></textarea></td></tr>
+	<tr><td><textarea id="e_basic" name="corps" cols="70" rows="12"></textarea></td></tr>
 	<tr><td align="center"><input type="submit" class="bouton" value="<?php echo _SEND; ?>"/></td></tr>
     </table>
 </form><?php } 
